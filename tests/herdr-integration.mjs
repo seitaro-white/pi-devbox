@@ -36,7 +36,7 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
   });
   let savedConfig;
 
-  step("starts offline with reduced privileges and the Herdr volume", () => {
+  step("starts offline with reduced privileges and host-backed Herdr state", () => {
     writeFileSync(join(p.directory, "herdr-offline.yaml"),
       "services:\n  pi-box:\n    network_mode: none\n");
     compose(["up", "-d", "--no-build", "--pull", "never", "--wait", "--wait-timeout", "60"]);
@@ -67,6 +67,13 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
     `);
     savedConfig = shell("sha256sum ~/.config/herdr/config.toml");
     await startServer();
+    shell(`
+      test "$HERDR_SOCKET_PATH" = "$HOME/.local/run/herdr/herdr.sock"
+      test -S "$HERDR_SOCKET_PATH"
+      test -S "$HOME/.local/run/herdr/herdr-client.sock"
+      test ! -e /state/herdr/config/herdr.sock
+      test ! -e /state/herdr/config/herdr-client.sock
+    `);
     const created = api("workspace", "create", "--cwd", "/workspace/herdr-repo", "--label", "persistent-check", "--no-focus");
     assert(created.root_pane.pane_id);
     assert.equal(created.root_pane.cwd, "/workspace/herdr-repo");
@@ -93,6 +100,7 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
   });
 
   step("replacement refreshes the reporter and keeps config, state and layout", async () => {
+    shell("printf ephemeral > ~/.local/run/herdr/replacement-canary");
     shell("printf stale > ~/.pi/agent/extensions/herdr-agent-state.ts");
     shell("printf stale > ~/.pi/agent/extensions/herdr-question-state.ts");
     recreate();
@@ -100,6 +108,7 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
     shell("cmp /opt/pi/extensions/herdr-question-state.ts ~/.pi/agent/extensions/herdr-question-state.ts");
     tmuxReady();
     assert.match(serverStatus(), /status: not running/);
+    shell("test ! -e ~/.local/run/herdr/replacement-canary");
     assert.equal(shell("sha256sum ~/.config/herdr/config.toml"), savedConfig);
     assert.equal(shell("cat ~/.local/state/herdr/canary"), "durable-state");
     checkPiExtension();

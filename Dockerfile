@@ -137,7 +137,10 @@ CMD ["tmux", "-D"]
 FROM common AS recommended
 # The entrypoint seeds Herdr defaults into a fresh host state directory.
 ENV CLAUDE_CONFIG_DIR=/state/claude
-RUN install -d -m 0700 -o node -g node /home/node/.local /home/node/.local/state \
+# Docker Desktop host mounts do not support Herdr's socket operations.
+# Herdr derives herdr-client.sock from this API socket override.
+ENV HERDR_SOCKET_PATH=/home/node/.local/run/herdr/herdr.sock
+RUN install -d -m 0700 -o node -g node /home/node/.local /home/node/.local/state /home/node/.local/run/herdr \
     && ln -s /state/herdr/config /home/node/.config/herdr \
     && ln -s /state/herdr/state /home/node/.local/state/herdr \
     && ln -s /opt/hunk/hunk /usr/local/bin/hunk \

@@ -48,6 +48,10 @@ test "$(stat -c %u /usr/local/bin/herdr)" = 0
 test ! -w /usr/local/bin/herdr
 test "$(readlink /home/node/.config/herdr)" = /state/herdr/config
 test "$(readlink /home/node/.local/state/herdr)" = /state/herdr/state
+test "$HERDR_SOCKET_PATH" = /home/node/.local/run/herdr/herdr.sock
+test ! -L /home/node/.local/run/herdr
+test "$(stat -c %u /home/node/.local/run/herdr)" = "$(id -u)"
+test "$(stat -c %a /home/node/.local/run/herdr)" = 700
 for path in /state /state/pi /state/git /state/herdr /state/herdr/config /state/herdr/state; do
     test "$(stat -c %a "$path")" = 700
     test "$(stat -c %u:%g "$path")" = "$(id -u):$(id -g)"

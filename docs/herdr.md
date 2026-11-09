@@ -35,7 +35,22 @@ Herdr uses `/state/herdr` in the host state directory (`STATE_DIR` overrides
 - `~/.local/state/herdr` → `/state/herdr/state`
 - Worktrees: `/workspace/.worktrees`
 
-Configuration and state survive container replacement. Pi integrations refresh
-at startup; the skill lives at `~/.agents/skills/herdr`. Use Pi's `/reload` after updates.
+Configuration, saved workspace/tab layout (`config/session.json`), and state
+survive container replacement. Running pane processes do not; Herdr restores its
+saved layout when the server next starts.
+
+`HERDR_SOCKET_PATH` points to `~/.local/run/herdr/herdr.sock` inside the container;
+Herdr derives `herdr-client.sock` beside it. These temporary sockets must stay off
+the host bind mount because Docker Desktop does not support their socket
+operations. Existing sockets/logs under `/state/herdr/config` can be left alone;
+the socket override ignores the old sockets.
+
+Herdr 0.9.5's explicit named sessions (`--session` / `session attach`) bypass the
+socket override, and live server handoff also uses the config directory. Avoid
+those features with Docker Desktop host-backed state; use the default session
+with multiple workspaces, and stop/restart rather than live handoff.
+
+Pi integrations refresh at startup; the skill lives at `~/.agents/skills/herdr`.
+Use Pi's `/reload` after updates.
 
 For version updates, see [Updating tools and extensions](../README.md#updating-tools-and-extensions).
