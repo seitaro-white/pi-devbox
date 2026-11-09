@@ -7,11 +7,12 @@ test "$EDITOR" = micro
 test "$VISUAL" = micro
 test "$PAGER" = batcat
 test "$(pi --version)" = "$EXPECTED_PI_VERSION"
-for tool in gh git ss make nano micro nnn batcat rg fdfind uv python tmux psql curl gcloud terraform mise; do command -v "$tool" >/dev/null; done
+for tool in gh git ss make nano micro ttt batcat rg fdfind uv python tmux psql curl gcloud terraform mise; do command -v "$tool" >/dev/null; done
 gh --version >/dev/null
 nano --version >/dev/null
 micro --version >/dev/null
-nnn -V >/dev/null
+test "$(ttt --version)" = "ttt v$EXPECTED_TTT_VERSION"
+test ! -w "$(command -v ttt)"
 batcat --version >/dev/null
 rg --version >/dev/null
 fdfind --version >/dev/null

@@ -1,3 +1,6 @@
+[tool_alias]
+ttt = "github:eugenioenko/ttt"
+
 [tools]
 ruff = "0.17.0"
 ty = "0.0.92"
@@ -5,3 +8,4 @@ herdr = "0.9.5"
 hunk = "0.24.0"
 gcloud = "591.0.0"
 terraform = "1.17.1"
+ttt = "1.11.0"

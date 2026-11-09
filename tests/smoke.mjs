@@ -114,6 +114,7 @@ acceptanceSuite(`image: ${image}`, {
       `EXPECTED_HERDR_VERSION=${toolVersion("herdr")}`,
       `EXPECTED_GCLOUD_VERSION=${toolVersion("gcloud")}`,
       `EXPECTED_TERRAFORM_VERSION=${toolVersion("terraform")}`,
+      `EXPECTED_TTT_VERSION=${toolVersion("ttt")}`,
     ]);
   });
 
