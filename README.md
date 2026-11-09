@@ -64,8 +64,7 @@ flowchart LR
 The default image includes:
 
 - **Pi** — The core agent harness - model agnostic, minimal and easily extendable.
-- **tmux** - terminal multiplexer, for managing multiple terminal sessions/long-running processes.
-- **[Herdr](https://herdr.dev/)** (recommended image) — optional agent session manager, with its official `herdr` skill exposed to Pi. See [Pi-devbox setup and storage](docs/herdr.md).
+- **[Herdr](https://herdr.dev/)** — agent session manager and terminal multiplexer, with its official `herdr` skill exposed to Pi. See [Pi-devbox setup and storage](docs/herdr.md).
 - **[Hunk](https://hunk.dev/)** (recommended image) — interactive terminal diff reviewer, with its `hunk-review` skill exposed to Pi. See [Hunk](https://github.com/modem-dev/hunk).
 - **Standard development tools:** Bash, Git, GitHub CLI (`gh`), Make, curl, ripgrep, fd (`fdfind` on Debian).
 - **TUI navigation tools:** micro (file editor), bat (`batcat` on Debian, file pager), nnn (file explorer). Used in combination these allow for a very basic terminal-based development experience, very handy if ssh'ing in from a client system that lacks an IDE.
