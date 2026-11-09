@@ -30,9 +30,7 @@ export function composeSuite(title, { name, overlays = [], settings = {} }, defi
     CONTAINER: project,
     IMAGE: process.env.PI_BOX_RECOMMENDED_IMAGE || "pi-box:0.2.0",
     WORKSPACE_VOLUME: `${project}-workspace`,
-    AGENT_VOLUME: `${project}-agent`,
-    GIT_VOLUME: `${project}-git`,
-    HERDR_VOLUME: `${project}-herdr`,
+    STATE_VOLUME: `${project}-state`,
   };
   const env = { ...process.env };
   for (const key of Object.keys(env)) {
@@ -68,7 +66,7 @@ export function composeSuite(title, { name, overlays = [], settings = {} }, defi
   let ready = false;
 
   acceptanceSuite(title, {
-    names: `project ${project} in ${directory}; volumes ${localSettings.WORKSPACE_VOLUME}, ${localSettings.AGENT_VOLUME}, ${localSettings.GIT_VOLUME}, ${localSettings.HERDR_VOLUME}`,
+    names: `project ${project} in ${directory}; volumes ${localSettings.WORKSPACE_VOLUME}, ${localSettings.STATE_VOLUME}`,
     redact,
     setup() {
       mkdirSync(directory, { mode: 0o700 });

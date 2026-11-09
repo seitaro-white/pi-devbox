@@ -1,13 +1,14 @@
 # Docker Sandboxes
 
-Optional micro-VM deployment for Apple Silicon macOS, using native experimental
-`sbx env` commands (tested with sbx v0.49.2). Compose remains the primary workflow.
+Optional micro-VM deployment using native experimental `sbx env` commands
+(tested with sbx v0.49.2 on macOS only). sbx supports macOS 14+ on Apple Silicon,
+Windows 11 and Ubuntu 24.04+ with KVM. Compose remains the primary workflow.
 
 The default sandbox is mountless. Files and login survive stop/start;
 **deleting the sandbox deletes its internal data**. Local sbx does not support
 reattachable named volumes; [shared storage](#optional-shared-storage) is optional.
 
-## One-time host setup
+## One-time host setup (macOS)
 
 ```bash
 brew trust docker/tap
@@ -89,14 +90,15 @@ stop/reboot ends live processes.
 
 ## Optional shared storage
 
-Share a dedicated host directory to retain repositories and Pi/Git state
+Share a dedicated host directory to retain repositories and tool state
 independently of sandbox deletion. This variant has not been live-tested here.
 
 On the host:
 
 ```bash
-mkdir -p /absolute/path/to/pi-box-data/repos /absolute/path/to/pi-box-data/state/pi
-chmod 700 /absolute/path/to/pi-box-data /absolute/path/to/pi-box-data/state
+mkdir -p /absolute/path/to/pi-box-data/repos \
+  /absolute/path/to/pi-box-data/state/{pi,git/gh,gcloud,claude}
+chmod -R 700 /absolute/path/to/pi-box-data
 ```
 
 Create private `sbxenv.local.yaml` beside `sbxenv.yaml`:
@@ -106,12 +108,17 @@ name: pi-sandbox-shared
 workspace: /absolute/path/to/pi-box-data
 env:
   PI_CODING_AGENT_DIR: /absolute/path/to/pi-box-data/state/pi
-  GIT_CONFIG_GLOBAL: /absolute/path/to/pi-box-data/state/gitconfig
+  GIT_CONFIG_GLOBAL: /absolute/path/to/pi-box-data/state/git/config
+  GH_CONFIG_DIR: /absolute/path/to/pi-box-data/state/git/gh
+  CLOUDSDK_CONFIG: /absolute/path/to/pi-box-data/state/gcloud
+  CLAUDE_CONFIG_DIR: /absolute/path/to/pi-box-data/state/claude
 ```
 
 The directory is shared read-write at the same absolute path. `repos/` holds
-checkouts; `state/` holds Pi login/settings and Git configuration. Omit `env` to
-share only repositories. Other user-installed tools remain sandbox-local.
+checkouts; `state/<tool>/` holds Pi, Git/GitHub, gcloud and Claude state. This
+optional variant uses `PI_CODING_AGENT_DIR`; Compose instead links `~/.pi/agent`
+to `/state/pi`. Omit `env` to share only repositories. Other user-installed tools
+remain sandbox-local.
 
 Use both files for every environment command:
 

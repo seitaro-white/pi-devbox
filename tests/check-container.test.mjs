@@ -8,9 +8,7 @@ import { root, temporaryDirectory } from "./helpers/files.mjs";
 const container = "pi-box-main-container";
 const volumes = [
   { source: "workspace", target: "/workspace" },
-  { source: "agent", target: "/home/node/.pi/agent" },
-  { source: "git", target: "/home/node/.config/git" },
-  { source: "herdr", target: "/home/node/.herdr" },
+  { source: "state", target: "/state" },
 ];
 
 function preflightFixture() {
@@ -28,7 +26,7 @@ function preflightFixture() {
         volumes.map(({ source }) => [source, { name: `pi-box-${source}` }]),
       ),
     },
-    image: [{ Config: { Env: ["GIT_CONFIG_GLOBAL=/home/node/.config/git/config"] } }],
+    image: [{ Config: { Env: ["GIT_CONFIG_GLOBAL=/state/git/config"] } }],
     owned: [container],
     names: [container],
     existing: [{
@@ -90,7 +88,11 @@ function runPreflight(t, fixture) {
 for (const [scenario, change, error] of [
   ["fresh", (fixture) => { fixture.names = []; fixture.owned = []; }],
   ["normal", () => {}],
-  ["pre-Herdr container", (fixture) => { fixture.existing[0].Mounts.pop(); }, /Unexpected mounts/],
+  ["old four-volume container", (fixture) => {
+    fixture.existing[0].Mounts.splice(1, 1, ...[
+      ["agent", "/home/node/.pi/agent"], ["git", "/home/node/.config/git"], ["herdr", "/home/node/.herdr"],
+    ].map(([name, path]) => ({ Type: "volume", RW: true, Name: `pi-box-${name}`, Destination: path })));
+  }, /Unexpected mounts/],
   [
     "standalone",
     (fixture) => { fixture.existing[0].Config.Labels = {}; },
@@ -108,8 +110,7 @@ for (const [scenario, change, error] of [
   ["readonly mount", (fixture) => { fixture.existing[0].Mounts[0].RW = false; }, /Unexpected mounts/],
   ["bind mount", (fixture) => { fixture.existing[0].Mounts[0].Type = "bind"; }, /Unexpected mounts/],
   ["stopped", (fixture) => { fixture.existing[0].State.Running = false; }, /Start .* first/],
-  ["shared Git volume", (fixture) => { fixture.users["volume=pi-box-git"] = ["other"]; }, /in use by other/],
-  ["shared Herdr volume", (fixture) => { fixture.users["volume=pi-box-herdr"] = ["other"]; }, /in use by other/],
+  ["shared state volume", (fixture) => { fixture.users["volume=pi-box-state"] = ["other"]; }, /in use by other/],
   [
     "foreign project",
     (fixture) => { fixture.existing[0].Config.Labels["com.docker.compose.project"] = "other"; },
@@ -121,15 +122,15 @@ for (const [scenario, change, error] of [
     /not managed by this Compose project/,
   ],
   ["renamed", (fixture) => { fixture.owned = ["old-name"]; }, /differently named/],
-  ["image without Git volume support", (fixture) => { fixture.image[0].Config.Env = []; }, /Git volume/],
+  ["image without state volume support", (fixture) => { fixture.image[0].Config.Env = []; }, /state volume/],
   [
     "invalid Compose mounts",
     (fixture) => { fixture.config.services["pi-box"].volumes = []; },
-    /four writable named volumes/,
+    /two writable named volumes/,
   ],
   [
     "duplicate volume",
-    (fixture) => { fixture.config.volumes.git.name = "pi-box-agent"; },
+    (fixture) => { fixture.config.volumes.state.name = "pi-box-workspace"; },
     /must be distinct/,
   ],
 ]) {

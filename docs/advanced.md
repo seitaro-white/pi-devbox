@@ -7,16 +7,16 @@ Detailed configuration, operations and maintenance notes moved out of the [READM
 The image includes `/AGENTS.md` and a `pi-box` skill with environment
 and service instructions. Replacing the image updates these without changing
 personal Pi settings; use `/reload` in existing Pi sessions. uv Python/tool
-installs persist in the agent volume.
+installs persist in `/state/uv`.
 
 ## Git setup
 
-Configure your Git identity inside the container and clone projects into `/workspace`. Git settings and HTTPS credentials persist in the Git volume; host Git configuration and SSH keys are not mounted automatically.
+Configure your Git identity inside the container and clone projects into `/workspace`. Git settings and HTTPS credentials persist in `/state/git`; host Git configuration and SSH keys are not mounted automatically.
 
 Use `gh` for GitHub PRs, issues and checks. Supply your existing GitHub token as
 `GH_TOKEN` in the shell launching Pi; check with `gh auth status`. Git push/pull
 keeps using its existing credential helper. CLI config persists in
-`/home/node/.config/git/gh`; `GH_TOKEN` must be supplied for each new session.
+`/state/git/gh`; `GH_TOKEN` must be supplied for each new session.
 
 ## Cloud tools
 
@@ -26,22 +26,49 @@ provider, `gcloud auth application-default login --no-launch-browser`. Credentia
 are never baked into the image. Keep Terraform projects and state in `/workspace`;
 prefer a remote state backend for shared infrastructure.
 
-If you previously installed these tools in the agent volume, copy your existing
-gcloud configuration **before replacing the container** (run on the host):
+If gcloud configuration is still container-local in `~/.config/gcloud`, copy it
+**before migration or replacement** (run on the host of the old container):
 
 ```sh
 docker compose exec pi-box sh -c 'cp -a "$HOME/.config/gcloud" "$HOME/.pi/agent/gcloud" && chmod 700 "$HOME/.pi/agent/gcloud"'
 ```
 
-This assumes the destination does not already exist. After rebuilding, remove the
-old `~/.pi/agent/bin/gcloud` symlink and `~/.pi/agent/bin/terraform` binary so they
-no longer shadow the image tools. Once `gcloud version` and `terraform version`
-work from the image, remove `~/.pi/agent/tools/google-cloud-sdk` to stop Pi's legacy
-custom-tools warning. Do not move the SDK into Pi's `extensions/` directory.
+This assumes the destination does not already exist. `make migrate` moves this
+configuration to `/state/gcloud` and skips legacy tool installs. gcloud and
+Terraform now run from the image; do not move the SDK into Pi's `extensions/`.
+
+## State volume migration
+
+Run on the Docker host, once after updating the checkout:
+
+```sh
+make build
+make migrate
+make up
+```
+
+Migration requires the old Compose container to be running with its original four
+named volumes. It discovers their names from the container mounts, including custom
+names. If `check-disposable-files.sh` finds container-local Git files, move them to
+persistent storage first. Finish jobs before migrating: the script stops and
+removes the old container, but keeps `/workspace` and all three old state volumes.
+The target `STATE_VOLUME` must not already exist.
+
+Pi data goes to `/state/pi`, except gcloud and Claude data move to their own
+folders. Git and Herdr data retain their contents under `/state/git` and
+`/state/herdr`. Python, uv tools, `bin/` and legacy `tools/` installs are skipped:
+their absolute paths would break. Run the printed `uv python install` and
+`uv tool install` commands inside the new container, and reinstall any other
+legacy tools manually.
+
+Verify logins, settings and repositories before running the printed
+`docker volume rm` command. On failure, keep the old volumes; inspect/remove only
+the incomplete new state volume before retrying. To roll back, use the old checkout
+and image with the original volume names. Do not use `docker compose down -v`.
 
 ## Docker Sandboxes
 
-An optional mountless micro-VM deployment for Apple Silicon Macs uses native
+An optional mountless micro-VM deployment (tested on Apple Silicon macOS) uses native
 `sbx env` commands and [`sbxenv.yaml`](../sbxenv.yaml). See the
 [sandbox guide](sandboxes.md) for setup, login and storage options.
 Internal storage survives stop/start, but not sandbox deletion.

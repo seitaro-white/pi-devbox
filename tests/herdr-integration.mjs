@@ -45,8 +45,8 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
     assert.equal(container.HostConfig.NetworkMode, "none");
     assert.deepEqual(container.HostConfig.CapDrop, ["ALL"]);
     assert(container.HostConfig.SecurityOpt.includes("no-new-privileges:true"));
-    assert.equal(container.Mounts.length, 4);
-    assert.equal(container.Mounts.find((mount) => mount.Destination === "/home/node/.herdr")?.Name, p.settings.HERDR_VOLUME);
+    assert.equal(container.Mounts.length, 2);
+    assert.equal(container.Mounts.find((mount) => mount.Destination === "/state")?.Name, p.settings.STATE_VOLUME);
     tmuxReady();
   });
 

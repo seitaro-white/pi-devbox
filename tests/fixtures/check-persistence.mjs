@@ -5,7 +5,7 @@ import { readFileSync, statSync } from "node:fs";
 import { test } from "node:test";
 
 test(
-  "workspace and private agent state persist",
+  "workspace and private tool state persist",
   () => {
     assert.equal(
       readFileSync("/workspace/repo/unpushed.txt", "utf8"),
@@ -18,10 +18,10 @@ test(
       "?? unpushed.txt",
     );
     assert.equal(
-      readFileSync("/home/node/.pi/agent/history-canary", "utf8"),
+      readFileSync("/state/pi/history-canary", "utf8"),
       "SYNTHETIC_HISTORY_CANARY",
     );
-    const auth = "/home/node/.pi/agent/auth.json";
+    const auth = "/state/pi/auth.json";
     assert.deepEqual(JSON.parse(readFileSync(auth, "utf8")), {
       synthetic: "SYNTHETIC_AUTH_CANARY_NOT_A_REAL_TOKEN",
     });
@@ -32,7 +32,7 @@ test(
       }).trim(),
       "synthetic@example.invalid",
     );
-    assert.equal(process.env.GH_CONFIG_DIR, "/home/node/.config/git/gh");
+    assert.equal(process.env.GH_CONFIG_DIR, "/state/git/gh");
     assert.equal(execFileSync("gh", ["config", "get", "editor"], {
       encoding: "utf8",
     }).trim(), "micro");
@@ -46,7 +46,7 @@ test(
     });
     assert.match(credential, /password=SYNTHETIC_NOT_A_REAL_TOKEN/);
     assert.equal(
-      statSync("/home/node/.config/git/credentials").mode & 0o777,
+      statSync("/state/git/credentials").mode & 0o777,
       0o600,
     );
   },

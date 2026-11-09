@@ -102,12 +102,12 @@ CMD ["/bin/bash", "-l"]
 
 # Compose images: the node user, persistent-volume paths and startup scripts.
 FROM cloud-tools AS common
-ENV CLOUDSDK_CONFIG=/home/node/.pi/agent/gcloud \
-    UV_PYTHON_INSTALL_DIR=/home/node/.pi/agent/python \
-    UV_PYTHON_BIN_DIR=/home/node/.pi/agent/bin \
-    UV_TOOL_DIR=/home/node/.pi/agent/uv-tools \
-    UV_TOOL_BIN_DIR=/home/node/.pi/agent/bin \
-    PATH=/home/node/.pi/agent/bin:$PATH
+ENV CLOUDSDK_CONFIG=/state/gcloud \
+    UV_PYTHON_INSTALL_DIR=/state/uv/python \
+    UV_PYTHON_BIN_DIR=/state/uv/bin \
+    UV_TOOL_DIR=/state/uv/tools \
+    UV_TOOL_BIN_DIR=/state/uv/bin \
+    PATH=/state/uv/bin:$PATH
 
 COPY container/entrypoint.sh /usr/local/bin/pi-box-entrypoint
 COPY --chown=node:node container/defaults/micro-settings.json /home/node/.config/micro/settings.json
@@ -115,12 +115,13 @@ COPY container/tmux.conf /etc/tmux.conf
 COPY container/gitconfig /etc/gitconfig
 COPY container/init-agent.mjs container/init-git.mjs container/prepare-runtime.mjs /opt/pi/
 RUN chmod 0755 /usr/local/bin/pi-box-entrypoint \
-    && install -d -m 0700 -o node -g node /workspace /home/node/.pi /home/node/.pi/agent \
-        /home/node/.config /home/node/.config/git /home/node/.herdr
+    && install -d -m 0700 -o node -g node /workspace /home/node/.pi /home/node/.config \
+        /state /state/pi /state/herdr /state/herdr/config /state/herdr/state \
+    && ln -s /state/pi /home/node/.pi/agent
 
 ENV HOME=/home/node \
-    GIT_CONFIG_GLOBAL=/home/node/.config/git/config \
-    GH_CONFIG_DIR=/home/node/.config/git/gh
+    GIT_CONFIG_GLOBAL=/state/git/config \
+    GH_CONFIG_DIR=/state/git/gh
 
 # Image-owned guidance stays current and is not hidden by persistent volumes.
 # Pi loads ancestor AGENTS.md files and discovers ~/.agents/skills automatically.
@@ -132,18 +133,16 @@ CMD ["tmux", "-D"]
 
 # Assemble configuration before tools, then copy the frequently updated packages.
 FROM common AS recommended
-# Claude Code state (login, settings, sessions) persists in the agent volume.
-ENV CLAUDE_CONFIG_DIR=/home/node/.pi/agent/claude
-# Docker seeds a fresh Herdr volume from these image-owned defaults.
-RUN install -d -m 0700 -o node -g node /home/node/.herdr/config \
-        /home/node/.herdr/state /home/node/.local /home/node/.local/state \
-    && ln -s /home/node/.herdr/config /home/node/.config/herdr \
-    && ln -s /home/node/.herdr/state /home/node/.local/state/herdr \
+# Docker seeds a fresh state volume from the image tree, including Herdr defaults.
+ENV CLAUDE_CONFIG_DIR=/state/claude
+RUN install -d -m 0700 -o node -g node /home/node/.local /home/node/.local/state \
+    && ln -s /state/herdr/config /home/node/.config/herdr \
+    && ln -s /state/herdr/state /home/node/.local/state/herdr \
     && ln -s /opt/hunk/hunk /usr/local/bin/hunk \
     && install -d /home/node/.agents/skills \
     && ln -s /opt/herdr /home/node/.agents/skills/herdr \
     && ln -s /opt/hunk/skills/hunk-review /home/node/.agents/skills/hunk-review
-COPY --chown=node:node --chmod=0600 container/defaults/herdr.toml /home/node/.herdr/config/config.toml
+COPY --chown=node:node --chmod=0600 container/defaults/herdr.toml /state/herdr/config/config.toml
 COPY --from=tools /out/python/ /
 COPY --from=tools /out/review/ /
 COPY --from=npm-runtime /opt/pi /opt/pi

@@ -26,7 +26,7 @@ composeSuite("Compose workflow", { name: "compose" }, (p, step) => {
       assert.equal(state.HostConfig.PortBindings[port][0].HostIp, "127.0.0.1");
     }
     exec(["ss", "-ltnp"]);
-    assert.equal(state.Mounts.length, 4);
+    assert.equal(state.Mounts.length, 2);
     fixture("check-persistence.mjs");
   };
   const refuse = (target, pattern) => {

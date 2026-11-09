@@ -11,9 +11,7 @@ const docker = (args, options = {}) => runCommand("docker", args, options);
 const name = `pi-box-smoke-${randomUUID()}`;
 const volumes = [
   { name: `${name}-workspace`, path: "/workspace" },
-  { name: `${name}-agent`, path: "/home/node/.pi/agent" },
-  { name: `${name}-git`, path: "/home/node/.config/git" },
-  { name: `${name}-herdr`, path: "/home/node/.herdr" },
+  { name: `${name}-state`, path: "/state" },
 ];
 const label = `io.pi-box.smoke=${name}`;
 const security = ["--cap-drop=ALL", "--security-opt=no-new-privileges"];
