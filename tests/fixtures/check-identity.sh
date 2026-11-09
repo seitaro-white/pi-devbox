@@ -1,6 +1,6 @@
 #!/bin/sh
 # Check the image's user, pinned CLI and writable/private state directories.
-set -eu
+set -eux
 
 test "$(id -un)" = node
 test "$EDITOR" = micro

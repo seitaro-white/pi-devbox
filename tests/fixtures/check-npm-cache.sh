@@ -1,6 +1,6 @@
 #!/bin/sh
 # Install a synthetic local package into Pi's runtime prefix without networking.
-set -eu
+set -eux
 
 test "$(id -un)" = node
 work=$(mktemp -d)

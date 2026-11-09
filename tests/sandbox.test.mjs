@@ -21,6 +21,18 @@ test("kit leaves networking to host policy and model login to Pi", () => {
   assert.doesNotMatch(kit, /(?:network-policy|credential|ssh-agent|filesystem)@/);
 });
 
+test("every local Dockerfile COPY source is explicitly allowlisted", () => {
+  const allowed = new Set(read(".dockerignore").split(/\r?\n/));
+  for (const [, instruction] of read("Dockerfile").matchAll(/^COPY\s+(.+)$/gm)) {
+    const tokens = instruction.trim().split(/\s+/);
+    if (tokens.some((token) => token.startsWith("--from="))) continue;
+    const paths = tokens.filter((token) => !token.startsWith("--"));
+    for (const source of paths.slice(0, -1)) {
+      assert.ok(allowed.has(`!${source}`), `Dockerfile COPY source ${source} is missing !${source} in .dockerignore`);
+    }
+  }
+});
+
 test("standard image contexts exclude everything except reviewed build inputs", () => {
   const docker = read(".dockerignore");
   assert.equal(docker, read(".containerignore"));
