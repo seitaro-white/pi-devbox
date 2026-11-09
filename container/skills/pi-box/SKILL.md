@@ -24,13 +24,14 @@ Check task-relevant tools and configuration: sidecars are optional. Inspect conf
 | `/state/uv` | uv Python, tools and binaries (`python/`, `tools/`, `bin/`) |
 | `/state/herdr` | Herdr config and state (`config/`, `state/`) |
 
-Tool directories are created on demand by the tools or startup initialization;
-the `/state` root is private to `node` (0700). The image explicitly creates
-`/state/pi`, `/state/herdr` and both Herdr symlink targets as `node` (0700),
-then copies Herdr's default config into the existing config directory.
+`/state` binds the host's `${HOME}/pi-box-data/state` (`STATE_DIR` overrides it);
+keep it private (0700 suggested), including its login tokens. Startup creates
+`/state/pi` and seeds Herdr's default config only when `/state/herdr` is absent.
+Other tool directories are created on demand. `/workspace` uses a named volume
+unless the host sets `WORKSPACE_DIR` to a host directory.
 
-Other paths are container-local. uv Python/tool installs use the persistent state
-volume; project dependencies belong in the project. Volume contents survive
+Other paths are container-local. uv Python/tool installs use persistent state;
+project dependencies belong in the project. Persistent contents survive
 replacement, including file deletions. Docker Sandbox storage instead survives
 stop/start but is lost on deletion unless host-directory sharing is configured.
 

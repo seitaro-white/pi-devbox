@@ -17,6 +17,10 @@ npm run test:integration -- phoenix  # opt-in
 npm run test:integration -- --all
 ```
 
+On Linux, add `--build-arg PI_BOX_UID=$(id -u) --build-arg PI_BOX_GID=$(id -g)`
+to the recommended image build so the container and test runner can both access
+temporary host state directories. Docker Desktop does not need these overrides.
+
 Default suites: `config recommended herdr sandbox compose postgres browserless`.
 CI uses the same selection on native AMD64/ARM64. Override image names with
 `PI_BOX_RECOMMENDED_IMAGE` and `PI_BOX_SANDBOX_IMAGE`.
@@ -25,7 +29,7 @@ CI uses the same selection on native AMD64/ARM64. Override image names with
 
 | Tests | Boundary |
 |---|---|
-| `*.test.mjs` | State preservation, replacement guards, manifest/lockfile consistency, sandbox definitions |
+| `*.test.mjs` | Initialization, manifest/lockfile consistency, sandbox definitions |
 | `compose-configuration.mjs` | Overlay combinations, storage and port wiring |
 | `smoke.mjs` | Tools, permissions, Pi guidance/skills, extensions and LSP |
 | `herdr-integration.mjs` | Reporter installation, offline extension loading and persistent Herdr state |
@@ -47,8 +51,8 @@ report names the first broken behaviour. Use `waitFor` for readiness polling.
 
 ## Isolation and failures
 
-Docker acceptance uses temporary projects, synthetic credentials, isolated volumes
-and ephemeral host ports, independently of the checkout's `.env` and normal Pi-box
+Docker acceptance uses temporary projects and host state directories, synthetic
+credentials, isolated workspace/sidecar volumes and ephemeral host ports, independently of the checkout's `.env` and normal Pi-box
 resources. Sidecar tests may pull images and install disposable clients/exporters.
 
 Runs clean up owned resources, including on failure. Set

@@ -10,7 +10,7 @@ in the image as `/AGENTS.md` and guides agents running *inside* Pi-box.
 - `compose*.yaml`: base service plus PostgreSQL, Browserless and Phoenix overlays.
 - `container/`: image inputs (entrypoint, init scripts, defaults, the `pi-box` skill).
   `.dockerignore` and `.containerignore` are allowlists: add new build inputs to both.
-- `scripts/`: host-side helpers behind `make` (preflight, version check, migration).
+- `scripts/`: host-side version checking behind `make versions`.
 - `docs/`, `README.md`: user docs. Keep them in step with behaviour changes.
 - `plans/<feature>/`: plans and task briefs; `plan.md` is authoritative over `draft.md`.
 
@@ -33,5 +33,5 @@ in the image as `/AGENTS.md` and guides agents running *inside* Pi-box.
 ## Safety
 
 - Never touch the user's real volumes or containers. Tests use disposable Compose
-  projects; `make up`, `make replace` and `make migrate` end running sessions.
+  projects; replacement via `make up` or `make replace` ends running sessions.
 - Never use `docker compose down -v`, and never bake credentials into the image.

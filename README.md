@@ -31,6 +31,7 @@ Prerequisites: Docker Engine 25 or newer with Compose v5.0 or newer.
 ```bash
 git clone https://github.com/seitaro-white/pi-devbox.git
 cd pi-devbox
+mkdir -m 700 -p ~/pi-box-data/state
 docker compose up -d --build
 ```
 
@@ -41,9 +42,9 @@ docker compose exec pi-box tmux attach-session -t '=shell'
 pi
 ```
 
-There are also convenience targets in `Makefile`. Two named volumes persist across rebuilds and replacement: `/workspace` holds repositories; `/state` holds tool state by tool (`pi/`, `git/`, `gcloud/`, `claude/`, `uv/`, `herdr/`). `~/.pi/agent` links to `/state/pi`. Override their names with `WORKSPACE_VOLUME` and `STATE_VOLUME`.
+On Linux, set `PI_BOX_UID` and `PI_BOX_GID` in `.env` to `id -u` and `id -g` before building (see [.env.example](.env.example)). Create the state directory first so Docker does not create it owned by root. Docker Desktop does not need the ID overrides.
 
-Upgrading from the old `agent`, `git` and `herdr` volumes? Run `make build`, then `make migrate` on the Docker host before `make up`. Migration checks disposable files, ends running sessions and copies state into a new volume, keeping the old volumes for rollback. uv Python/tools must be reinstalled; the script prints commands. See [migration details](docs/advanced.md#state-volume-migration).
+There are also convenience targets in `Makefile`. Tool state persists on the host at `~/pi-box-data/state` (`STATE_DIR` overrides it), including readable login tokens; keep this directory private. Inside the container it is `/state`, grouped by tool (`pi/`, `git/`, `gcloud/`, `claude/`, `uv/`, `herdr/`), with `~/.pi/agent` linked to `/state/pi`. Repositories in `/workspace` use the `pi-box-workspace` named volume (`WORKSPACE_VOLUME` overrides its name), or a host directory if `WORKSPACE_DIR` is set. Files elsewhere are lost on replacement. See [storage options and migration](docs/advanced.md#storage).
 
 ## Architecture
 
@@ -71,9 +72,9 @@ The default image includes:
 
 - **Python, uv, Ruff and [ty](https://docs.astral.sh/ty/)** — Ruff provides Python linting/fixes; ty provides type checking (`ty check`) and LSP diagnostics.
 - **Node.js, npm and Biome**
-- **[Claude Code CLI](https://code.claude.com/docs/)** (recommended and sandbox images) — run `claude` directly or `claude auth login` to authenticate for Claude Code and the bridge. In the recommended image, `CLAUDE_CONFIG_DIR` keeps Claude Code's login, settings and sessions in the state volume (`/state/claude`), so they survive container replacement.
+- **[Claude Code CLI](https://code.claude.com/docs/)** (recommended and sandbox images) — run `claude` directly or `claude auth login` to authenticate for Claude Code and the bridge. In the recommended image, `CLAUDE_CONFIG_DIR` keeps Claude Code's login, settings and sessions in host-backed state (`/state/claude`), so they survive container replacement.
 - **PostgreSQL client (`psql`)**
-- **Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform** — pinned, checksum-verified Linux amd64/arm64 releases in every image. Compose keeps gcloud configuration and credentials in the state volume (`/state/gcloud`).
+- **Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform** — pinned, checksum-verified Linux amd64/arm64 releases in every image. Compose keeps gcloud configuration and credentials in host-backed state (`/state/gcloud`).
 
 - **Pi Extensions**
     - **`pi-subagents`** — spin up and delegate to subagents for parallel agent workflows.

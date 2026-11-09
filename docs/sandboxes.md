@@ -96,7 +96,7 @@ independently of sandbox deletion. This variant has not been live-tested here.
 On the host:
 
 ```bash
-mkdir -p /absolute/path/to/pi-box-data/repos \
+mkdir -p /absolute/path/to/pi-box-data/workspace \
   /absolute/path/to/pi-box-data/state/{pi,git/gh,gcloud,claude}
 chmod -R 700 /absolute/path/to/pi-box-data
 ```
@@ -114,11 +114,12 @@ env:
   CLAUDE_CONFIG_DIR: /absolute/path/to/pi-box-data/state/claude
 ```
 
-The directory is shared read-write at the same absolute path. `repos/` holds
+The directory is shared read-write at the same absolute path. `workspace/` holds
 checkouts; `state/<tool>/` holds Pi, Git/GitHub, gcloud and Claude state. This
 optional variant uses `PI_CODING_AGENT_DIR`; Compose instead links `~/.pi/agent`
 to `/state/pi`. Omit `env` to share only repositories. Other user-installed tools
-remain sandbox-local.
+remain sandbox-local. Compose and this variant can use the same host `state/`
+directory, one at a time.
 
 Use both files for every environment command:
 
@@ -128,7 +129,7 @@ sbx env create ./sbxenv.yaml ./sbxenv.local.yaml
 # Seed extension defaults once for the new Pi state directory:
 sbx env exec ./sbxenv.yaml ./sbxenv.local.yaml -- node /opt/pi/init-agent.mjs
 sbx env exec -it ./sbxenv.yaml ./sbxenv.local.yaml -- bash -l
-# Inside: cd repos; clone projects; run pi and /login.
+# Inside: cd workspace; clone projects; run pi and /login.
 ```
 
 Pi can read, modify and delete the shared directory, including login tokens.
