@@ -2,7 +2,7 @@
 # Check the image's user, pinned CLI and writable/private state directories.
 set -eu
 
-test "$(id -u)" != 0
+test "$(id -un)" = node
 test "$EDITOR" = micro
 test "$VISUAL" = micro
 test "$PAGER" = batcat

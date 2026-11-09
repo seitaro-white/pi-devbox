@@ -103,7 +103,7 @@ CMD ["/bin/bash", "-l"]
 # Compose images: the node user, persistent paths and startup scripts.
 FROM cloud-tools AS common
 ARG PI_BOX_UID=1000 PI_BOX_GID=1000
-RUN groupmod -g "$PI_BOX_GID" node && usermod -u "$PI_BOX_UID" node
+RUN groupmod -o -g "$PI_BOX_GID" node && usermod -o -u "$PI_BOX_UID" node
 ENV CLOUDSDK_CONFIG=/state/gcloud \
     UV_PYTHON_INSTALL_DIR=/state/uv/python \
     UV_PYTHON_BIN_DIR=/state/uv/bin \

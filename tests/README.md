@@ -52,8 +52,9 @@ report names the first broken behaviour. Use `waitFor` for readiness polling.
 ## Isolation and failures
 
 Docker acceptance uses temporary projects and host state directories, synthetic
-credentials, isolated workspace/sidecar volumes and ephemeral host ports, independently of the checkout's `.env` and normal Pi-box
-resources. Sidecar tests may pull images and install disposable clients/exporters.
+credentials, isolated workspace/sidecar volumes and ephemeral host ports,
+independently of the checkout's `.env` and normal Pi-box resources. Sidecar tests
+may pull images and install disposable clients/exporters.
 
 Runs clean up owned resources, including on failure. Set
 `PI_BOX_KEEP_TEST_RESOURCES=1` to retain failing resources for inspection.
