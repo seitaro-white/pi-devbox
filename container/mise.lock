@@ -79,6 +79,23 @@ url = "https://releases.hashicorp.com/terraform/1.17.1/terraform_1.17.1_linux_ar
 checksum = "sha256:4638628058e71a55212b1c563712eac03b902128f40740f3dc8174df12135061"
 url = "https://releases.hashicorp.com/terraform/1.17.1/terraform_1.17.1_linux_amd64.zip"
 
+[[tools.ttt]]
+version = "1.11.0"
+backend = "github:eugenioenko/ttt"
+specifiers = ["1.11.0"]
+
+[tools.ttt."platforms.linux-arm64"]
+checksum = "sha256:0997ae503c138ec6d12c027726deaefe57b67c4194e1aada13011a2d56f28544"
+checksum_source = "mise-versions"
+url = "https://github.com/eugenioenko/ttt/releases/download/v1.11.0/ttt-linux-arm64"
+url_api = "https://api.github.com/repos/eugenioenko/ttt/releases/assets/715951457"
+
+[tools.ttt."platforms.linux-x64"]
+checksum = "sha256:c3c4a382c99b8e291d83a1b527db1b40b8607de8d7373d341bd3e0e926258584"
+checksum_source = "mise-versions"
+url = "https://github.com/eugenioenko/ttt/releases/download/v1.11.0/ttt-linux-amd64"
+url_api = "https://api.github.com/repos/eugenioenko/ttt/releases/assets/715951456"
+
 [[tools.ty]]
 version = "0.0.92"
 backend = "aqua:astral-sh/ty"

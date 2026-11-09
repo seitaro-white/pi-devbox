@@ -26,7 +26,9 @@ runCommand("docker", [
     ty --version
     biome --version
     claude --version
-    for tool in gcloud gsutil bq terraform; do command -v "$tool"; done
+    for tool in gcloud gsutil bq terraform ttt; do command -v "$tool"; done
+    ttt --version
+    test ! -w "$(command -v ttt)"
     gcloud version
     terraform version -json
     test ! -w "$(command -v gcloud)"

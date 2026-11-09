@@ -68,7 +68,7 @@ The default image includes:
 - **[Herdr](https://herdr.dev/)** — agent session manager and terminal multiplexer, with its official `herdr` skill exposed to Pi. See [Pi-devbox setup and storage](docs/herdr.md).
 - **[Hunk](https://hunk.dev/)** (recommended image) — interactive terminal diff reviewer, with its `hunk-review` skill exposed to Pi. See [Hunk](https://github.com/modem-dev/hunk).
 - **Standard development tools:** Bash, Git, GitHub CLI (`gh`), Make, curl, ripgrep, fd (`fdfind` on Debian).
-- **TUI navigation tools:** micro (file editor), bat (`batcat` on Debian, file pager), nnn (file explorer). Used in combination these allow for a very basic terminal-based development experience, very handy if ssh'ing in from a client system that lacks an IDE.
+- **TUI navigation tools:** micro (file editor), bat (`batcat` on Debian, file pager), [TTT](https://github.com/eugenioenko/ttt) (`ttt`, file explorer/editor). Used in combination these allow for a very basic terminal-based development experience, very handy if ssh'ing in from a client system that lacks an IDE.
 
 - **Python, uv, Ruff and [ty](https://docs.astral.sh/ty/)** — Ruff provides Python linting/fixes; ty provides type checking (`ty check`) and LSP diagnostics.
 - **Node.js, npm and Biome**

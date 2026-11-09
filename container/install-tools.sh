@@ -7,6 +7,8 @@ mise install --locked
 install -d /out/cloud/opt /out/cloud/usr/local/bin \
     /out/review/opt/herdr /out/review/usr/local/bin
 
+install -D -m 0755 "$(mise which ttt)" /out/editor/usr/local/bin/ttt
+
 cp -a "$(mise where gcloud)" /out/cloud/opt/google-cloud-sdk
 install -m 0755 "$(mise which terraform)" /out/cloud/usr/local/bin/terraform
 for tool in gcloud gsutil bq; do
