@@ -5,7 +5,7 @@ const image = process.env.PI_BOX_SANDBOX_IMAGE || "pi-box:0.2.0-sandbox";
 runCommand("docker", [
   "run", "--rm", "--network=none", "--cap-drop=ALL",
   "--security-opt=no-new-privileges",
-  image, "bash", "-lc", `set -eu
+  image, "bash", "-lc", `set -eux
     test "$(id -un)" = agent
     test "$(id -u)" = 1000
     test "$HOME" = /home/agent
