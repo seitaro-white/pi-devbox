@@ -62,11 +62,15 @@ set -euo pipefail
 shopt -s dotglob nullglob
 for path in /old/agent/*; do
     case ${path##*/} in
-        gcloud|claude) cp -a "$path/." "/state/${path##*/}/" ;;
+        gcloud|claude)
+            mkdir -p "/state/${path##*/}"
+            cp -a "$path/." "/state/${path##*/}/"
+            ;;
         python|uv-tools|bin|tools) ;;
         *) cp -a "$path" /state/pi/ ;;
     esac
 done
+mkdir -p /state/git
 cp -a /old/git/. /state/git/
 cp -a /old/herdr/. /state/herdr/
 echo 'Python and uv tools were not copied (their absolute paths would break). Reinstall inside the new container:'

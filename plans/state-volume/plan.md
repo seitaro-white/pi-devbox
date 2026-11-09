@@ -44,9 +44,11 @@ packages.
 ### Dockerfile (`common` and `recommended`)
 
 - Replace the `~/.pi/agent`, `~/.config/git` and `~/.herdr` directory creation
-  with `/state` and its subfolders, all listed explicitly, owned by `node` with
-  mode 0700. Docker seeds a fresh named volume from this tree, including Herdr's
-  `config.toml`, so no startup creation is needed.
+  with only `/state`, `/state/pi` and `/state/herdr/state`, owned by `node` with
+  mode 0700. Pi and Herdr need writable symlink targets; `COPY` creates Herdr's
+  config directory and seeds `config.toml`. `init-git.mjs` creates `/state/git`;
+  gh, gcloud, Claude and uv create their own directories on demand as `node`.
+  The private `/state` root protects all tool state, regardless of child modes.
 - `ln -s /state/pi /home/node/.pi/agent`, with `~/.pi` created as `node`.
 - Repoint `CLOUDSDK_CONFIG`, `UV_*`, `PATH`, `GIT_CONFIG_GLOBAL`,
   `GH_CONFIG_DIR`, `CLAUDE_CONFIG_DIR` and the Herdr symlinks at `/state/...`.
@@ -80,6 +82,8 @@ One-off, host-side, run once after `make build`:
    and `herdr` volumes read-only and the new `state` volume, then `cp -a`:
    - `agent/` → `pi/`, except `gcloud/` → `gcloud/` and `claude/` → `claude/`
    - `git/` → `git/`; `herdr/` → `herdr/`
+   - Create copy destinations with `mkdir -p` when not seeded by the image;
+     `cp -a` preserves the source directory's ownership and permissions.
    - Skip `python/`, `uv-tools/`, `bin/` and the legacy `tools/`. They contain
      absolute paths to `/home/node/.pi/agent/...` and break when moved. Print
      the `uv python install` / `uv tool install` commands needed to reinstall them.

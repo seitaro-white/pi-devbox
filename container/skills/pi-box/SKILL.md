@@ -24,6 +24,10 @@ Check task-relevant tools and configuration: sidecars are optional. Inspect conf
 | `/state/uv` | uv Python, tools and binaries (`python/`, `tools/`, `bin/`) |
 | `/state/herdr` | Herdr config and state (`config/`, `state/`) |
 
+Tool directories are created on demand by the tools or startup initialization;
+the `/state` root is private to `node` (0700). Pi and Herdr symlink targets are
+seeded by the image, along with Herdr's default config.
+
 Other paths are container-local. uv Python/tool installs use the persistent state
 volume; project dependencies belong in the project. Volume contents survive
 replacement, including file deletions. Docker Sandbox storage instead survives

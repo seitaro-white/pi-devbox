@@ -116,9 +116,7 @@ COPY container/gitconfig /etc/gitconfig
 COPY container/init-agent.mjs container/init-git.mjs container/prepare-runtime.mjs /opt/pi/
 RUN chmod 0755 /usr/local/bin/pi-box-entrypoint \
     && install -d -m 0700 -o node -g node /workspace /home/node/.pi /home/node/.config \
-        /state /state/pi /state/git /state/git/gh /state/gcloud /state/claude \
-        /state/uv /state/uv/python /state/uv/tools /state/uv/bin \
-        /state/herdr /state/herdr/config /state/herdr/state \
+        /state /state/pi /state/herdr/state \
     && ln -s /state/pi /home/node/.pi/agent
 
 ENV HOME=/home/node \
