@@ -2,7 +2,7 @@
 # Check the image's user, pinned CLI and writable/private state directories.
 set -eu
 
-test "$(id -u)" = 1000
+test "$(id -un)" = node
 test "$EDITOR" = micro
 test "$VISUAL" = micro
 test "$PAGER" = batcat
@@ -49,7 +49,7 @@ test "$(readlink /home/node/.config/herdr)" = /state/herdr/config
 test "$(readlink /home/node/.local/state/herdr)" = /state/herdr/state
 for path in /state /state/pi /state/git /state/herdr /state/herdr/config /state/herdr/state; do
     test "$(stat -c %a "$path")" = 700
-    test "$(stat -c %u:%g "$path")" = 1000:1000
+    test "$(stat -c %u:%g "$path")" = "$(id -u):$(id -g)"
     test -w "$path"
     test -x "$path"
 done

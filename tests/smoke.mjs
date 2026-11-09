@@ -1,7 +1,9 @@
 // Smoke-test one prebuilt image using only uniquely named, disposable resources.
 // All assertions use synthetic state, without model calls or operator credentials.
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { acceptanceSuite, waitFor } from "./helpers/acceptance.mjs";
 import { runCommand } from "./helpers/engine.mjs";
 
@@ -11,8 +13,8 @@ const docker = (args, options = {}) => runCommand("docker", args, options);
 const name = `pi-box-smoke-${randomUUID()}`;
 const volumes = [
   { name: `${name}-workspace`, path: "/workspace" },
-  { name: `${name}-state`, path: "/state" },
 ];
+const stateDirectory = join(tmpdir(), `${name}-state`);
 const label = `io.pi-box.smoke=${name}`;
 const security = ["--cap-drop=ALL", "--security-opt=no-new-privileges"];
 const manifest =
@@ -49,10 +51,11 @@ function fixture(filename, variables = []) {
 }
 
 acceptanceSuite(`image: ${image}`, {
-  names: `container ${name}, volumes ${volumes.map((volume) => volume.name).join(", ")}`,
-  /** Launch with private test volumes, reduced privileges and no network. */
+  names: `container ${name}, volumes ${volumes.map((volume) => volume.name).join(", ")}, state ${stateDirectory}`,
+  /** Launch with private test storage, reduced privileges and no network. */
   async setup() {
     docker(["image", "inspect", image]);
+    mkdirSync(stateDirectory, { mode: 0o700 });
     for (const volume of volumes) {
       docker(["volume", "create", "--label", label, volume.name]);
       createdVolumes.push(volume.name);
@@ -61,6 +64,7 @@ acceptanceSuite(`image: ${image}`, {
     docker([
       "run", "-d", "--name", name, "--label", label, ...security, "--network=none",
       ...volumes.flatMap((volume) => ["-v", `${volume.name}:${volume.path}`]),
+      "-v", `${stateDirectory}:/state`,
       image,
     ]);
     try {
@@ -94,6 +98,7 @@ acceptanceSuite(`image: ${image}`, {
         errors.push(error);
       }
     }
+    rmSync(stateDirectory, { recursive: true, force: true });
     if (errors.length) {
       throw new AggregateError(
         errors,

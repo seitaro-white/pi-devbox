@@ -1,12 +1,12 @@
 // The core user workflow owns storage persistence and replacement acceptance.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { waitFor } from "./helpers/acceptance.mjs";
 import { composeSuite } from "./helpers/compose-project.mjs";
 
 composeSuite("Compose workflow", { name: "compose" }, (p, step) => {
   const inspect = () => p.inspect(p.project);
-  const exec = (args) => p.compose(["exec", "-T", "pi-box", ...args]);
   const fixture = (file) => p.compose([
     "exec", "-T", "pi-box", "node", "--input-type=module",
   ], {
@@ -25,14 +25,11 @@ composeSuite("Compose workflow", { name: "compose" }, (p, step) => {
       assert.equal(state.HostConfig.PortBindings[port].length, 1);
       assert.equal(state.HostConfig.PortBindings[port][0].HostIp, "127.0.0.1");
     }
-    exec(["ss", "-ltnp"]);
+    p.compose(["exec", "-T", "pi-box", "ss", "-ltnp"]);
     assert.equal(state.Mounts.length, 2);
     fixture("check-persistence.mjs");
-  };
-  const refuse = (target, pattern) => {
-    const before = inspect().Id;
-    assert.throws(() => p.make(target), pattern);
-    assert.equal(inspect().Id, before, "refusal must leave the existing container intact");
+    assert.equal(readFileSync(join(p.settings.STATE_DIR, "pi/history-canary"), "utf8"),
+      "SYNTHETIC_HISTORY_CANARY");
   };
   let initial;
 
@@ -76,19 +73,6 @@ composeSuite("Compose workflow", { name: "compose" }, (p, step) => {
   step("make replace recreates the container and keeps storage", () => {
     p.make("replace");
     assert.notEqual(inspect().Id, initial);
-    assertState();
-  });
-
-  step("replacement refuses while non-persistent Git config exists", () => {
-    exec(["sh", "-c", "printf SYNTHETIC > /home/node/.gitconfig"]);
-    for (const target of ["up", "replace"]) refuse(target, /non-persistent/);
-    exec(["rm", "/home/node/.gitconfig"]);
-  });
-
-  step("replacement refuses a stopped container", () => {
-    p.compose(["stop", "pi-box"]);
-    refuse("replace", /Start .* first/);
-    p.compose(["start", "--wait", "--wait-timeout", "60", "pi-box"]);
     assertState();
   });
 

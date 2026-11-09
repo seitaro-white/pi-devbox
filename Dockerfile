@@ -100,8 +100,10 @@ WORKDIR /home/agent/workspace
 ENTRYPOINT []
 CMD ["/bin/bash", "-l"]
 
-# Compose images: the node user, persistent-volume paths and startup scripts.
+# Compose images: the node user, persistent paths and startup scripts.
 FROM cloud-tools AS common
+ARG PI_BOX_UID=1000 PI_BOX_GID=1000
+RUN groupmod -o -g "$PI_BOX_GID" node && usermod -o -u "$PI_BOX_UID" node
 ENV CLOUDSDK_CONFIG=/state/gcloud \
     UV_PYTHON_INSTALL_DIR=/state/uv/python \
     UV_PYTHON_BIN_DIR=/state/uv/bin \
@@ -116,7 +118,6 @@ COPY container/gitconfig /etc/gitconfig
 COPY container/init-agent.mjs container/init-git.mjs container/prepare-runtime.mjs /opt/pi/
 RUN chmod 0755 /usr/local/bin/pi-box-entrypoint \
     && install -d -m 0700 -o node -g node /workspace /home/node/.pi /home/node/.config \
-        /state /state/pi /state/herdr /state/herdr/config /state/herdr/state \
     && ln -s /state/pi /home/node/.pi/agent
 
 ENV HOME=/home/node \
@@ -133,7 +134,7 @@ CMD ["tmux", "-D"]
 
 # Assemble configuration before tools, then copy the frequently updated packages.
 FROM common AS recommended
-# Docker seeds a fresh state volume from the image tree, including Herdr defaults.
+# The entrypoint seeds Herdr defaults into a fresh host state directory.
 ENV CLAUDE_CONFIG_DIR=/state/claude
 RUN install -d -m 0700 -o node -g node /home/node/.local /home/node/.local/state \
     && ln -s /state/herdr/config /home/node/.config/herdr \
@@ -142,7 +143,7 @@ RUN install -d -m 0700 -o node -g node /home/node/.local /home/node/.local/state
     && install -d /home/node/.agents/skills \
     && ln -s /opt/herdr /home/node/.agents/skills/herdr \
     && ln -s /opt/hunk/skills/hunk-review /home/node/.agents/skills/hunk-review
-COPY --chown=node:node --chmod=0600 container/defaults/herdr.toml /state/herdr/config/config.toml
+COPY --chown=node:node --chmod=0600 container/defaults/herdr.toml /opt/pi/defaults/herdr.toml
 COPY --from=tools /out/python/ /
 COPY --from=tools /out/review/ /
 COPY --from=npm-runtime /opt/pi /opt/pi

@@ -65,11 +65,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Read runner IDs
+        id: identity
+        run: |
+          echo "uid=$(id -u)" >> "$GITHUB_OUTPUT"
+          echo "gid=$(id -g)" >> "$GITHUB_OUTPUT"
+
       - name: Build recommended image
         uses: docker/build-push-action@v7
         with:
           context: .
           target: recommended
+          build-args: |
+            PI_BOX_UID=${{ steps.identity.outputs.uid }}
+            PI_BOX_GID=${{ steps.identity.outputs.gid }}
           platforms: linux/${{ matrix.arch }}
           tags: pi-box:ci-recommended
           load: true

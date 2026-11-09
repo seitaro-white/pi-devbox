@@ -28,7 +28,8 @@ Use separate worktrees for concurrent edits.
 
 ## Storage and updates
 
-Herdr uses `/state/herdr` in the shared state volume (`STATE_VOLUME` overrides its name):
+Herdr uses `/state/herdr` in the host state directory (`STATE_DIR` overrides
+`${HOME}/pi-box-data/state`):
 
 - `~/.config/herdr` → `/state/herdr/config`
 - `~/.local/state/herdr` → `/state/herdr/state`

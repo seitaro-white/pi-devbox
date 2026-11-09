@@ -1,5 +1,6 @@
 // Configuration-only contracts: no builds, containers or operator environment.
 import assert from "node:assert/strict";
+import { join } from "node:path";
 import { composeSuite } from "./helpers/compose-project.mjs";
 
 const assertDevPorts = (service, firstPublished) => {
@@ -27,15 +28,20 @@ composeSuite("Compose configuration", {
     DEV_PORTS: "", // Exercise Compose's default range.
   },
 }, (p, step) => {
-  step("compose.yaml alone is Pi Box with isolated volumes and no sidecar settings", () => {
+  step("compose.yaml alone uses a state bind and workspace volume without sidecar settings", () => {
     const base = p.config(["compose.yaml"]);
     assert.deepEqual(Object.keys(base.services), ["pi-box"]);
     assertDevPorts(base.services["pi-box"], 5173);
     assert.equal(base.services["pi-box"].build.target, "recommended");
     assert.deepEqual(
       Object.values(base.volumes).map((volume) => volume.name).sort(),
-      [p.settings.WORKSPACE_VOLUME, p.settings.STATE_VOLUME].sort(),
+      [p.settings.WORKSPACE_VOLUME],
     );
+    const mounts = base.services["pi-box"].volumes;
+    assert.ok(mounts.some((mount) => mount.type === "volume" &&
+      mount.source === "workspace" && mount.target === "/workspace"));
+    assert.ok(mounts.some((mount) => mount.type === "bind" &&
+      mount.source === p.settings.STATE_DIR && mount.target === "/state"));
     for (const key of ["PGPASSWORD", "BROWSER_TOKEN", "BROWSER_CDP_URL"]) {
       assert.equal(base.services["pi-box"].environment?.[key], undefined);
     }
@@ -76,6 +82,18 @@ composeSuite("Compose configuration", {
       }
     });
   }
+});
+
+composeSuite("Host workspace", { name: "host-workspace" }, (p, step) => {
+  step("WORKSPACE_DIR binds a host directory instead of the workspace volume", () => {
+    const directory = join(p.directory, "workspace");
+    const config = JSON.parse(p.compose(["-f", "compose.yaml", "config", "--format", "json"], {
+      env: { ...process.env, ...p.settings, WORKSPACE_DIR: directory },
+    }));
+    const mount = config.services["pi-box"].volumes.find((item) => item.target === "/workspace");
+    assert.equal(mount.type, "bind");
+    assert.equal(mount.source, directory);
+  });
 });
 
 composeSuite("Custom dev ports", { name: "custom-dev-ports", settings: { DEV_PORTS: "15173-15182" } }, (p, step) => {

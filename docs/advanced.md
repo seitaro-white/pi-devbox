@@ -26,45 +26,38 @@ provider, `gcloud auth application-default login --no-launch-browser`. Credentia
 are never baked into the image. Keep Terraform projects and state in `/workspace`;
 prefer a remote state backend for shared infrastructure.
 
-If gcloud configuration is still container-local in `~/.config/gcloud`, copy it
-**before migration or replacement** (run on the host of the old container):
+## Storage
+
+`STATE_DIR` defaults to `${HOME}/pi-box-data/state` on the host. Keep it private
+(mode 0700 suggested): it contains login tokens and credentials. Create it before
+starting Compose; on Linux, Docker otherwise creates it owned by root. Set
+`PI_BOX_UID`/`PI_BOX_GID` to your host's `id -u`/`id -g` before building on Linux;
+Docker Desktop does not need these overrides.
+
+`/workspace` stays in a named volume unless `WORKSPACE_DIR` is set to a host
+path. On macOS Docker Desktop, bind mounts can be 10–20× slower for metadata-heavy
+operations, so the volume is the default. For GUI access, use VS Code's
+"Attach to Running Container", or keep a separate host clone.
+
+### Migration from the state volume
+
+Run on the Docker host with an empty destination directory. Finish active jobs
+first; stopping the container ends sessions. Substitute your old volume name and
+`STATE_DIR` if customized:
 
 ```sh
-docker compose exec pi-box sh -c 'cp -a "$HOME/.config/gcloud" "$HOME/.pi/agent/gcloud" && chmod 700 "$HOME/.pi/agent/gcloud"'
-```
-
-This assumes the destination does not already exist. `make migrate` moves this
-configuration to `/state/gcloud` and skips legacy tool installs. gcloud and
-Terraform now run from the image; do not move the SDK into Pi's `extensions/`.
-
-## State volume migration
-
-Run on the Docker host, once after updating the checkout:
-
-```sh
-make build
-make migrate
+mkdir -m 700 -p ~/pi-box-data/state
+docker compose stop pi-box
+docker run --rm -u 0 --entrypoint sh \
+  -v pi-box-state:/from:ro -v ~/pi-box-data/state:/to pi-box:0.2.0 \
+  -c 'cp -a /from/. /to/'
 make up
 ```
 
-Migration requires the old Compose container to be running with its original four
-named volumes. It discovers their names from the container mounts, including custom
-names. If `check-disposable-files.sh` finds container-local Git files, move them to
-persistent storage first. Finish jobs before migrating: the script stops and
-removes the old container, but keeps `/workspace` and all three old state volumes.
-The target `STATE_VOLUME` must not already exist.
-
-Pi data goes to `/state/pi`, except gcloud and Claude data move to their own
-folders. Git and Herdr data retain their contents under `/state/git` and
-`/state/herdr`. Python, uv tools, `bin/` and legacy `tools/` installs are skipped:
-their absolute paths would break. Run the printed `uv python install` and
-`uv tool install` commands inside the new container, and reinstall any other
-legacy tools manually.
-
-Verify logins, settings and repositories before running the printed
-`docker volume rm` command. On failure, keep the old volumes; inspect/remove only
-the incomplete new state volume before retrying. To roll back, use the old checkout
-and image with the original volume names. Do not use `docker compose down -v`.
+Verify logins, settings and repositories, then remove the old volume with
+`docker volume rm pi-box-state`. In-container paths are unchanged, so uv installs
+keep working. The workspace volume is untouched. Users on the older three-volume
+state layout must migrate with the previous release first.
 
 ## Docker Sandboxes
 
@@ -173,7 +166,7 @@ Rebuilds retain persistent Pi settings, credentials and user-installed packages.
 
 ## Testing
 
-`npm test` runs the small Docker-free suite for state preservation, replacement guards and runtime-manifest consistency. `npm run test:integration` runs disposable Docker acceptance against prebuilt base, recommended and sandbox images, including Compose persistence, PostgreSQL and Browserless. Phoenix and live sandbox checks are explicitly opt-in.
+`npm test` runs the small Docker-free suite for initialization and runtime-manifest consistency. `npm run test:integration` runs disposable Docker acceptance against prebuilt base, recommended and sandbox images, including Compose persistence, PostgreSQL and Browserless. Phoenix and live sandbox checks are explicitly opt-in.
 
 See [the test guide](../tests/README.md) for image-build commands, suite selection and cleanup behaviour. CI uses the same acceptance runner on AMD64 and ARM64.
 

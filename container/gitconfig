@@ -1,4 +1,4 @@
-# Image defaults; personal overrides live in the state volume.
+# Image defaults; personal overrides live in host-backed state.
 [credential]
 	# Reset inherited helpers before selecting this volume's credential store.
 	helper =

@@ -2,7 +2,7 @@
 # Install a synthetic local package into Pi's runtime prefix without networking.
 set -eu
 
-test "$(id -u)" = 1000
+test "$(id -un)" = node
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 mkdir "$work/package"
