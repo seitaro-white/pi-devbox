@@ -15,15 +15,15 @@ execFileSync("git", ["init", "-q", "--initial-branch=main"], { cwd });
 writeFileSync(`${cwd}/unpushed.txt`, "SYNTHETIC_WORKSPACE_CANARY\n", {
   mode: 0o600,
 });
-writeFileSync("/home/node/.pi/agent/history-canary", "SYNTHETIC_HISTORY_CANARY", {
+writeFileSync("/state/pi/history-canary", "SYNTHETIC_HISTORY_CANARY", {
   mode: 0o600,
 });
 writeFileSync(
-  "/home/node/.pi/agent/auth.json",
+  "/state/pi/auth.json",
   JSON.stringify({ synthetic: "SYNTHETIC_AUTH_CANARY_NOT_A_REAL_TOKEN" }),
   { mode: 0o600 },
 );
-assert.equal(process.env.GH_CONFIG_DIR, "/home/node/.config/git/gh");
+assert.equal(process.env.GH_CONFIG_DIR, "/state/git/gh");
 execFileSync("gh", ["config", "set", "editor", "micro"]);
 writeFileSync(`${process.env.GH_CONFIG_DIR}/hosts.yml`,
   "github.com:\n    user: synthetic\n    oauth_token: SYNTHETIC_GH_NOT_A_REAL_TOKEN\n    git_protocol: https\n",

@@ -34,7 +34,7 @@ composeSuite("Compose configuration", {
     assert.equal(base.services["pi-box"].build.target, "recommended");
     assert.deepEqual(
       Object.values(base.volumes).map((volume) => volume.name).sort(),
-      [p.settings.WORKSPACE_VOLUME, p.settings.AGENT_VOLUME, p.settings.GIT_VOLUME, p.settings.HERDR_VOLUME].sort(),
+      [p.settings.WORKSPACE_VOLUME, p.settings.STATE_VOLUME].sort(),
     );
     for (const key of ["PGPASSWORD", "BROWSER_TOKEN", "BROWSER_CDP_URL"]) {
       assert.equal(base.services["pi-box"].environment?.[key], undefined);

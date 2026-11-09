@@ -21,7 +21,8 @@ test "$(gcloud version --format=json | node -pe 'JSON.parse(require("fs").readFi
 test "$(terraform version -json | node -pe 'JSON.parse(require("fs").readFileSync(0, "utf8")).terraform_version')" = "$EXPECTED_TERRAFORM_VERSION"
 test ! -w "$(command -v gcloud)"
 test ! -w "$(command -v terraform)"
-test "$CLOUDSDK_CONFIG" = /home/node/.pi/agent/gcloud
+test "$CLOUDSDK_CONFIG" = /state/gcloud
+test "$CLAUDE_CONFIG_DIR" = /state/claude
 gcloud config set project pi-box-smoke-test
 test "$(gcloud config get project)" = pi-box-smoke-test
 test -d "$CLOUDSDK_CONFIG/configurations"
@@ -31,9 +32,9 @@ if command -v postgres >/dev/null; then
     exit 1
 fi
 # Later uv installations still use persistent storage, unlike the sandbox home.
-test "$(uv python dir)" = /home/node/.pi/agent/python
-test "$(uv tool dir)" = /home/node/.pi/agent/uv-tools
-test "$(uv tool dir --bin)" = /home/node/.pi/agent/bin
+test "$(uv python dir)" = /state/uv/python
+test "$(uv tool dir)" = /state/uv/tools
+test "$(uv tool dir --bin)" = /state/uv/bin
 test "$(herdr --version)" = "herdr $EXPECTED_HERDR_VERSION"
 test "$(hunk --version)" = "$EXPECTED_HUNK_VERSION"
 test ! -w "$(command -v hunk)"
@@ -44,23 +45,36 @@ test ! -w /home/node/.agents/skills/herdr/SKILL.md
 test -s /home/node/.pi/agent/extensions/herdr-agent-state.ts
 test "$(stat -c %u /usr/local/bin/herdr)" = 0
 test ! -w /usr/local/bin/herdr
-test "$(readlink /home/node/.config/herdr)" = /home/node/.herdr/config
-test "$(readlink /home/node/.local/state/herdr)" = /home/node/.herdr/state
-for path in /home/node/.herdr /home/node/.herdr/config /home/node/.herdr/state; do
+test "$(readlink /home/node/.config/herdr)" = /state/herdr/config
+test "$(readlink /home/node/.local/state/herdr)" = /state/herdr/state
+for path in /state /state/pi /state/git /state/git/gh /state/gcloud /state/claude \
+    /state/uv /state/uv/python /state/uv/tools /state/uv/bin \
+    /state/herdr /state/herdr/config /state/herdr/state; do
     test "$(stat -c %a "$path")" = 700
+    test "$(stat -c %u "$path")" = 1000
     test -w "$path"
 done
 test "$(stat -c %a /home/node/.config/herdr/config.toml)" = 600
 test ! -w /opt/pi
-test "$(stat -c %a /home/node/.pi/agent)" = 700
+test "$(readlink -f /home/node/.pi/agent)" = /state/pi
+test "$(stat -Lc %a /home/node/.pi/agent)" = 700
+# Pi must discover settings through its default home path, without an override.
+test -z "${PI_CODING_AGENT_DIR:-}"
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { SettingsManager } from '/opt/pi/node_modules/@earendil-works/pi-coding-agent/dist/index.js';
+const settings = SettingsManager.create('/workspace');
+assert.deepEqual(settings.getPackages(), JSON.parse(readFileSync('/state/pi/settings.json', 'utf8')).packages);
+JS
 test "$(stat -c %a /home/node/.pi/agent/settings.json)" = 600
 test "$(stat -c %a /home/node/.pi/agent/pi-box-packages.json)" = 600
 test -w /workspace
 test -w /home/node/.pi/agent
 test -w /home/node/.local
-test "$GH_CONFIG_DIR" = /home/node/.config/git/gh
-test "$GIT_CONFIG_GLOBAL" = /home/node/.config/git/config
-test -w /home/node/.config/git
-test "$(stat -c %a /home/node/.config/git)" = 700
+test "$GH_CONFIG_DIR" = /state/git/gh
+test "$GIT_CONFIG_GLOBAL" = /state/git/config
+test -w /state/git
+test "$(stat -c %a /state/git)" = 700
 test "$(stat -c %a "$GIT_CONFIG_GLOBAL")" = 600
 test "$(git config --get credential.https://github.com.useHttpPath)" = true
