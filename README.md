@@ -87,7 +87,6 @@ The default image includes:
     - **`pi-stretchtext`** — expandable inline explanations that keep replies concise until you open the details.
     - **[`pi-context-view`](https://github.com/dimk90/pi-context-view)** — interactive `/context` usage explorer and `/context injections` inspector for system prompts, tool definitions, and extension contributions.
     - **[`@earendil-works/pi-claude-code`](https://github.com/earendil-works/pi-claude-code)** — official Claude Code subscription provider, shown as **Claude Code Subscription (Experimental)** in `/model` (`claude-code`). Uses the image's `claude` CLI; authenticate with `claude auth login` and check `/claude-code-status` in Pi. Pi's Anthropic login is not a substitute.
-    - **[`@danielgap/pi-claude-usage`](https://github.com/danielgap/pi-claude-usage)** — Claude subscription usage in the status bar and `/claude:usage` panel while `claude-bridge` is selected; no Gentle Shell required. Uses your Claude Code subscription login (`claude auth login`) from `CLAUDE_CONFIG_DIR`; expired credentials must be refreshed by Claude Code.
     - **Herdr's official Pi integration** — Installed by `herdr integration install pi` at container startup; reports status and session identity, inactive outside Herdr.
 
 - **Sidecars**
