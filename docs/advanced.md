@@ -39,26 +39,6 @@ path. On macOS Docker Desktop, bind mounts can be 10–20× slower for metadata-
 operations, so the volume is the default. For GUI access, use VS Code's
 "Attach to Running Container", or keep a separate host clone.
 
-### Migration from the state volume
-
-Run on the Docker host with an empty destination directory. Finish active jobs
-first; stopping the container ends sessions. Substitute your old volume name and
-`STATE_DIR` if customized:
-
-```sh
-mkdir -m 700 -p ~/pi-box-data/state
-docker compose stop pi-box
-docker run --rm -u 0 --entrypoint sh \
-  -v pi-box-state:/from:ro -v ~/pi-box-data/state:/to pi-box:0.2.0 \
-  -c 'cp -a /from/. /to/'
-make up
-```
-
-Verify logins, settings and repositories, then remove the old volume with
-`docker volume rm pi-box-state`. In-container paths are unchanged, so uv installs
-keep working. The workspace volume is untouched. Users on the older three-volume
-state layout must migrate with the previous release first.
-
 ## Docker Sandboxes
 
 An optional mountless micro-VM deployment (tested on Apple Silicon macOS) uses native

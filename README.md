@@ -44,7 +44,7 @@ pi
 
 On Linux, set `PI_BOX_UID` and `PI_BOX_GID` in `.env` to `id -u` and `id -g` before building (see [.env.example](.env.example)). Create the state directory first so Docker does not create it owned by root. Docker Desktop does not need the ID overrides.
 
-There are also convenience targets in `Makefile`. Tool state persists on the host at `~/pi-box-data/state` (`STATE_DIR` overrides it), including readable login tokens; keep this directory private. Inside the container it is `/state`, grouped by tool (`pi/`, `git/`, `gcloud/`, `claude/`, `uv/`, `herdr/`), with `~/.pi/agent` linked to `/state/pi`. Repositories in `/workspace` use the `pi-box-workspace` named volume (`WORKSPACE_VOLUME` overrides its name), or a host directory if `WORKSPACE_DIR` is set. Files elsewhere are lost on replacement. See [storage options and migration](docs/advanced.md#storage).
+There are also convenience targets in `Makefile`. Tool state persists on the host at `~/pi-box-data/state` (`STATE_DIR` overrides it), including readable login tokens; keep this directory private. Inside the container it is `/state`, grouped by tool (`pi/`, `git/`, `gcloud/`, `claude/`, `uv/`, `herdr/`), with `~/.pi/agent` linked to `/state/pi`. Repositories in `/workspace` use the `pi-box-workspace` named volume (`WORKSPACE_VOLUME` overrides its name), or a host directory if `WORKSPACE_DIR` is set. Files elsewhere are lost on replacement. See [storage options](docs/advanced.md#storage).
 
 ## Architecture
 
