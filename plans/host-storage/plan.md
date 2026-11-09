@@ -13,6 +13,15 @@ that:
 
 `/workspace` stays a named volume by default, with an optional host directory.
 
+## User priorities
+
+- Less total complexity and code; do not add safeguards beyond this plan.
+- Never touch the user's real volumes; check migration on throwaway volumes only.
+
+## Branches
+
+One branch, `host-storage-impl`.
+
 ## Agreed constraints
 
 - `/state` is always a host directory.
