@@ -49,12 +49,8 @@ CLI config persists at `$GH_CONFIG_DIR` (`/state/git/gh`).
 
 ## Claude Code subscription
 
-The bundled official `@earendil-works/pi-claude-code` extension uses the image's
-`claude` CLI. Run `claude auth login`, then select **Claude Code Subscription
-(Experimental)** in Pi's `/model` selector (`claude-code`). Use
-`/claude-code-status` to check readiness. Pi's Anthropic login is separate.
-The extension inherits `CLAUDE_CONFIG_DIR=/state/claude`; no additional config-dir
-variable is needed. Login, settings and sessions persist across replacement.
+The official `pi-claude-code` extension uses the `claude` CLI. Log in with
+`claude auth login`; check readiness with `/claude-code-status`.
 
 ## Cloud tools
 
