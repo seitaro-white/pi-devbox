@@ -41,7 +41,9 @@ docker compose exec pi-box tmux attach-session -t '=shell'
 pi
 ```
 
-There are also convenience targets in `Makefile`. The workspace, Pi settings, Git credentials and Herdr state live in persistent volumes and survive image rebuilds and container replacement.
+There are also convenience targets in `Makefile`. Two named volumes persist across rebuilds and replacement: `/workspace` holds repositories; `/state` holds tool state by tool (`pi/`, `git/`, `gcloud/`, `claude/`, `uv/`, `herdr/`). `~/.pi/agent` links to `/state/pi`. Override their names with `WORKSPACE_VOLUME` and `STATE_VOLUME`.
+
+Upgrading from the old `agent`, `git` and `herdr` volumes? Run `make build`, then `make migrate` on the Docker host before `make up`. Migration checks disposable files, ends running sessions and copies state into a new volume, keeping the old volumes for rollback. uv Python/tools must be reinstalled; the script prints commands. See [migration details](docs/advanced.md#state-volume-migration).
 
 ## Architecture
 
@@ -70,9 +72,9 @@ The default image includes:
 
 - **Python, uv, Ruff and [ty](https://docs.astral.sh/ty/)** — Ruff provides Python linting/fixes; ty provides type checking (`ty check`) and LSP diagnostics.
 - **Node.js, npm and Biome**
-- **[Claude Code CLI](https://code.claude.com/docs/)** (recommended and sandbox images) — run `claude` directly or `claude auth login` to authenticate for Claude Code and the bridge. In the recommended image, `CLAUDE_CONFIG_DIR` keeps Claude Code's login, settings and sessions in the agent volume (`~/.pi/agent/claude`), so they survive container replacement.
+- **[Claude Code CLI](https://code.claude.com/docs/)** (recommended and sandbox images) — run `claude` directly or `claude auth login` to authenticate for Claude Code and the bridge. In the recommended image, `CLAUDE_CONFIG_DIR` keeps Claude Code's login, settings and sessions in the state volume (`/state/claude`), so they survive container replacement.
 - **PostgreSQL client (`psql`)**
-- **Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform** — pinned, checksum-verified Linux amd64/arm64 releases in every image. Compose keeps gcloud configuration and credentials in the agent volume (`~/.pi/agent/gcloud`).
+- **Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform** — pinned, checksum-verified Linux amd64/arm64 releases in every image. Compose keeps gcloud configuration and credentials in the state volume (`/state/gcloud`).
 
 - **Pi Extensions**
     - **`pi-subagents`** — spin up and delegate to subagents for parallel agent workflows.

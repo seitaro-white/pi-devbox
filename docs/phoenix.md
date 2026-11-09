@@ -50,7 +50,7 @@ pi install npm:pi-otel@0.3.0
 pi
 ```
 
-Settings and installation persist in the agent volume. Restart existing Pi
+Settings and installation persist in `/state/pi` (also accessible via `~/.pi/agent`). Restart existing Pi
 processes to pick up changes. `/otel start` launches a different backend.
 
 ## View traces

@@ -58,7 +58,7 @@ test("exact package pins, extension loading and basic diagnostics", async (t) =>
   assert.equal(readJson("/opt/pi/package-lock.json").packages["node_modules/personal-skills"], undefined);
 
   // Prove guidance is actually discovered, even inside a project Git root and
-  // alongside operator-owned global instructions in the persistent agent volume.
+  // alongside operator-owned global instructions in the persistent Pi state directory.
   const project = mkdtempSync('/workspace/guidance-');
   t.after(() => rmSync(project, { recursive: true, force: true }));
   const git = spawnSync('git', ['init', '--quiet', project], { encoding: 'utf8' });
