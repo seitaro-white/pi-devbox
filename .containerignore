@@ -21,6 +21,8 @@ container/extensions/**
 container/defaults/**
 !container/defaults/herdr.toml
 !container/defaults/micro-settings.json
+!container/defaults/ttt-settings.json
+!container/defaults/pi-lsp.json
 !container/defaults/AGENTS.md
 !container/skills/
 container/skills/**

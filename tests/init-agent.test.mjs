@@ -67,9 +67,15 @@ describe("agent initialization", () => {
     for (const file of ["settings.json", "pi-box-packages.json"]) {
       assert.equal(statSync(state.path(file)).mode & 0o777, 0o600, file);
     }
-    for (const file of policyFiles) {
+    for (const file of policyFiles.filter((file) => file !== "pi-lsp.json")) {
       assert.equal(existsSync(state.path(file)), false, file);
     }
+    // pi-lsp.json is the one seeded policy file: it adds typescript-language-server.
+    assert.deepEqual(
+      state.json("pi-lsp.json"),
+      readJson(join(root, "container/defaults/pi-lsp.json")),
+    );
+    assert.equal(statSync(state.path("pi-lsp.json")).mode & 0o777, 0o600);
   });
 
   it("preserves operator state and resource filters without rewriting on repeated startup", (t) => {

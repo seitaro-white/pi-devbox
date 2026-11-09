@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "theme": "one-dark",
+  "appearance": {
+    "icons": "nerd-font"
+  },
+  "lsp": {
+    "servers": {
+      "python": {
+        "command": [
+          "ty",
+          "server"
+        ],
+        "languages": {
+          ".py": "python",
+          ".pyi": "python"
+        }
+      },
+      "typescript": {
+        "command": [
+          "typescript-language-server",
+          "--stdio"
+        ],
+        "languages": {
+          ".ts": "typescript",
+          ".tsx": "typescriptreact",
+          ".js": "javascript",
+          ".jsx": "javascriptreact",
+          ".mjs": "javascript",
+          ".cjs": "javascript",
+          ".mts": "typescript",
+          ".cts": "typescript"
+        }
+      }
+    }
+  }
+}

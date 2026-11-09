@@ -13,10 +13,11 @@ installs persist in `/state/uv`.
 
 Configure your Git identity inside the container and clone projects into `/workspace`. Git settings and HTTPS credentials persist in `/state/git`; host Git configuration and SSH keys are not mounted automatically.
 
-Use `gh` for GitHub PRs, issues and checks. Supply your existing GitHub token as
-`GH_TOKEN` in the shell launching Pi; check with `gh auth status`. Git push/pull
-keeps using its existing credential helper. CLI config persists in
-`/state/git/gh`; `GH_TOKEN` must be supplied for each new session.
+Use `gh` for GitHub PRs, issues and checks. Set `GH_TOKEN` (a GitHub personal
+access token) in `.env`; Compose passes it into the container on `make up`, so it
+is available in every session. Check with `gh auth status`. Run `gh auth setup-git`
+once so `git push` over HTTPS uses the same token. The container has no `ssh`
+client, so keep remotes on HTTPS. CLI config persists in `/state/git/gh`.
 
 ## Cloud tools
 
@@ -150,9 +151,18 @@ Rebuilds retain persistent Pi settings, credentials and user-installed packages.
 
 See [the test guide](../tests/README.md) for image-build commands, suite selection and cleanup behaviour. CI uses the same acceptance runner on AMD64 and ARM64.
 
-## Python language servers
+## Language servers
 
-Python files (`.py` and `.pyi`) automatically route to both Ruff and ty through pi-lsp's built-in catalog; no extra configuration is needed. `/lsp` shows command availability. A custom `pi-lsp.json` replaces that catalog, so existing custom configurations must include `{"ty":{"command":["ty","server"],"extensions":[".py",".pyi"]}}` alongside their other servers to enable ty.
+Pi and TTT use language servers for different jobs.
+
+| Language | Pi (`pi-lsp`, diagnostics for the agent) | TTT (navigation, completion, hover) |
+| --- | --- | --- |
+| Python | Ruff (lint) and ty (types) | ty |
+| JS/TS | Biome (lint) and `typescript-language-server` (types) | `typescript-language-server` |
+
+- **Pi:** the image seeds `pi-lsp.json` into Pi's state directory on first start, only when it is absent. A custom `pi-lsp.json` replaces pi-lsp's built-in catalog, so the seeded file lists Ruff, ty, Biome and `typescript-language-server` explicitly; other built-in servers (Rust, Go and so on) are not included, and their toolchains are not in the image. Existing `pi-lsp.json` files are never modified: add `{"typescript":{"command":["typescript-language-server","--stdio"],"extensions":[".js",".jsx",".ts",".tsx"]}}` to yours to match. `/lsp` shows command availability.
+- **TTT:** the image ships `~/.config/ttt/settings.json` with the One Dark theme, Nerd Font icons (needs a Nerd Font in your terminal) and `lsp.servers` for ty and `typescript-language-server`. TTT runs one server per language, so linting stays with Pi. An existing settings file is replaced when the container is rebuilt; copy the `lsp` block from `container/defaults/ttt-settings.json` if you keep your own.
+- **Versions:** `typescript-language-server` and `typescript@6` are pinned in `container/package.json`. The server does not work with TypeScript 7.
 
 ## Bundled skills: build details
 

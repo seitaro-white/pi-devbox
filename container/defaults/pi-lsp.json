@@ -1,0 +1,45 @@
+{
+  "ruff": {
+    "command": ["ruff", "server"],
+    "extensions": [".py", ".pyi"]
+  },
+  "ty": {
+    "command": ["ty", "server"],
+    "extensions": [".py", ".pyi"]
+  },
+  "biome": {
+    "command": ["biome", "lsp-proxy"],
+    "extensions": [
+      ".astro",
+      ".cjs",
+      ".css",
+      ".cts",
+      ".gql",
+      ".graphql",
+      ".html",
+      ".js",
+      ".json",
+      ".jsonc",
+      ".jsx",
+      ".mjs",
+      ".mts",
+      ".svelte",
+      ".ts",
+      ".tsx",
+      ".vue"
+    ]
+  },
+  "typescript": {
+    "command": ["typescript-language-server", "--stdio"],
+    "extensions": [
+      ".cjs",
+      ".cts",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".mts",
+      ".ts",
+      ".tsx"
+    ]
+  }
+}
