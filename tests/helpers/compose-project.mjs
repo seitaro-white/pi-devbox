@@ -30,7 +30,8 @@ export function composeSuite(title, { name, overlays = [], settings = {} }, defi
     CONTAINER: project,
     IMAGE: process.env.PI_BOX_RECOMMENDED_IMAGE || "pi-box:0.2.0",
     WORKSPACE_VOLUME: `${project}-workspace`,
-    STATE_VOLUME: `${project}-state`,
+    STATE_DIR: join(directory, "state"),
+    WORKSPACE_DIR: "",
   };
   const env = { ...process.env };
   for (const key of Object.keys(env)) {
@@ -66,10 +67,11 @@ export function composeSuite(title, { name, overlays = [], settings = {} }, defi
   let ready = false;
 
   acceptanceSuite(title, {
-    names: `project ${project} in ${directory}; volumes ${localSettings.WORKSPACE_VOLUME}, ${localSettings.STATE_VOLUME}`,
+    names: `project ${project} in ${directory}; workspace volume ${localSettings.WORKSPACE_VOLUME}; state ${localSettings.STATE_DIR}`,
     redact,
     setup() {
       mkdirSync(directory, { mode: 0o700 });
+      mkdirSync(localSettings.STATE_DIR, { mode: 0o700 });
       // Never copy the checkout's .env, data, or container build inputs.
       for (const path of ["Makefile", "scripts", ...readdirSync(root).filter(
         (file) => /^compose(?:\.[\w-]+)?\.yaml$/.test(file),

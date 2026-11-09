@@ -6,6 +6,9 @@ services:
     build:
       context: .
       target: recommended
+      args:
+        PI_BOX_UID: ${PI_BOX_UID:-1000}
+        PI_BOX_GID: ${PI_BOX_GID:-1000}
     container_name: ${CONTAINER:-pi-box-main-container}
     # Apps use 0.0.0.0:5173–5182 inside Pi; never expose them to the LAN.
     ports:
@@ -15,8 +18,9 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - workspace:/workspace
-      - state:/state
+      # A host path binds a directory; the default is the named volume below.
+      - ${WORKSPACE_DIR:-workspace}:/workspace
+      - ${STATE_DIR:-${HOME}/pi-box-data/state}:/state
     healthcheck:
       test: ["CMD", "tmux", "has-session", "-t", "=shell"]
       # Poll every second while starting; --wait returns on the first success.
@@ -30,5 +34,3 @@ services:
 volumes:
   workspace:
     name: ${WORKSPACE_VOLUME:-pi-box-workspace}
-  state:
-    name: ${STATE_VOLUME:-pi-box-state}

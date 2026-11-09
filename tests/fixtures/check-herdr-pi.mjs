@@ -24,7 +24,7 @@ eventBus.on("herdr:blocked", (report) => reports.push(report));
 const loader = new DefaultResourceLoader({ cwd: "/workspace", agentDir, eventBus });
 await loader.reload();
 assert.deepEqual(loader.getExtensions().errors, []);
-// Image-owned global skills remain visible with fresh and reused state volumes.
+// Image-owned global skills remain visible with fresh and reused state directories.
 for (const name of ["hunk-review", "herdr"]) {
   assert.equal(loader.getSkills().skills.filter((skill) => skill.name === name).length, 1, name);
 }

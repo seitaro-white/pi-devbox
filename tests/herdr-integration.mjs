@@ -46,7 +46,9 @@ composeSuite("Herdr", { name: "herdr" }, (p, step) => {
     assert.deepEqual(container.HostConfig.CapDrop, ["ALL"]);
     assert(container.HostConfig.SecurityOpt.includes("no-new-privileges:true"));
     assert.equal(container.Mounts.length, 2);
-    assert.equal(container.Mounts.find((mount) => mount.Destination === "/state")?.Name, p.settings.STATE_VOLUME);
+    const state = container.Mounts.find((mount) => mount.Destination === "/state");
+    assert.equal(state?.Type, "bind");
+    assert.equal(state.Source, p.settings.STATE_DIR);
     tmuxReady();
   });
 
