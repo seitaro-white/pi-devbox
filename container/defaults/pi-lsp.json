@@ -11,14 +11,19 @@
     "command": ["biome", "lsp-proxy"],
     "extensions": [
       ".astro",
+      ".cjs",
       ".css",
-      ".graphql",
+      ".cts",
       ".gql",
+      ".graphql",
       ".html",
       ".js",
-      ".jsx",
       ".json",
       ".jsonc",
+      ".jsx",
+      ".mjs",
+      ".mts",
+      ".svelte",
       ".ts",
       ".tsx",
       ".vue"
@@ -26,6 +31,15 @@
   },
   "typescript": {
     "command": ["typescript-language-server", "--stdio"],
-    "extensions": [".js", ".jsx", ".ts", ".tsx"]
+    "extensions": [
+      ".cjs",
+      ".cts",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".mts",
+      ".ts",
+      ".tsx"
+    ]
   }
 }
