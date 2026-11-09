@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { prepareRuntime, PI_PACKAGE } from "../container/prepare-runtime.mjs";
-import { root, readJson } from "./helpers/files.mjs";
+import { PI_PACKAGE, prepareRuntime } from "../container/prepare-runtime.mjs";
+import { readJson, root } from "./helpers/files.mjs";
 
 const source = readJson(join(root, "container/package.json"));
 const npmTools = source.piBox.npmTools;
@@ -74,6 +74,15 @@ describe("runtime manifests", () => {
     assert.equal(source.dependencies["pi-intercom"], undefined);
     const lock = readJson(join(root, "container/package-lock.json"));
     assert.equal(lock.packages["node_modules/pi-context"], undefined);
+  });
+
+  it("registers the official Claude Code subscription extension", () => {
+    const name = "@earendil-works/pi-claude-code";
+    assert.match(
+      source.dependencies[name],
+      /^git\+https:\/\/github\.com\/earendil-works\/pi-claude-code\.git#[a-f0-9]{40}$/,
+    );
+    assert.ok(prepareRuntime(source).settings.packages.includes(`/opt/pi/node_modules/${name}`));
   });
 
   it("treats Claude Code as a CLI tool rather than a Pi extension", () => {

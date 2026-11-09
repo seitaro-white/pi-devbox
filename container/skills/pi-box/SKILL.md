@@ -47,6 +47,15 @@ missing, ask the user to supply it privately in the shell launching Pi. Do not
 print credentials or request them in chat. Leave Git's credential helper unchanged.
 CLI config persists at `$GH_CONFIG_DIR` (`/state/git/gh`).
 
+## Claude Code subscription
+
+The bundled official `@earendil-works/pi-claude-code` extension uses the image's
+`claude` CLI. Run `claude auth login`, then select **Claude Code Subscription
+(Experimental)** in Pi's `/model` selector (`claude-code`). Use
+`/claude-code-status` to check readiness. Pi's Anthropic login is separate.
+The extension inherits `CLAUDE_CONFIG_DIR=/state/claude`; no additional config-dir
+variable is needed. Login, settings and sessions persist across replacement.
+
 ## Cloud tools
 
 Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform are image-owned in all

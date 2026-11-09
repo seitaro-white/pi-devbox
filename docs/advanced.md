@@ -142,6 +142,16 @@ Tailscale can provide private access to the Docker host or VM. Run it on the hos
 
 The host must remain awake and online.
 
+## Claude Code subscription in Pi
+
+Run `claude auth login` in the container, then select **Claude Code Subscription
+(Experimental)** with `/model` (`claude-code`). The official
+[`pi-claude-code`](https://github.com/earendil-works/pi-claude-code) extension
+runs the bundled CLI; `/claude-code-status` checks its availability and login.
+It inherits `CLAUDE_CONFIG_DIR=/state/claude`, so no
+`PI_CLAUDE_CODE_CONFIG_DIR` override is necessary. Pi's Anthropic login does not
+authenticate this provider.
+
 ## Updating tools and extensions
 
 Bundled Pi and extension versions are pinned in [`container/package.json`](container/package.json), except personal skills, which follow `main` at build time. `make versions` checks the npm pins against registry versions without changing anything, and labels Git commit pins without checking upstream. Update Git packages by replacing their full commit hashes in the manifest.
