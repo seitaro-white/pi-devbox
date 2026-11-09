@@ -44,9 +44,10 @@ packages.
 ### Dockerfile (`common` and `recommended`)
 
 - Replace the `~/.pi/agent`, `~/.config/git` and `~/.herdr` directory creation
-  with only `/state`, `/state/pi` and `/state/herdr/state`, owned by `node` with
-  mode 0700. Pi and Herdr need writable symlink targets; `COPY` creates Herdr's
-  config directory and seeds `config.toml`. `init-git.mjs` creates `/state/git`;
+  with only `/state`, `/state/pi`, `/state/herdr`, `/state/herdr/config` and
+  `/state/herdr/state`, owned by `node` with mode 0700. List Herdr's parent and
+  symlink targets explicitly: implicit parents may be root-owned and inaccessible.
+  `COPY` seeds only `config.toml`. `init-git.mjs` creates `/state/git`;
   gh, gcloud, Claude and uv create their own directories on demand as `node`.
   The private `/state` root protects all tool state, regardless of child modes.
 - `ln -s /state/pi /home/node/.pi/agent`, with `~/.pi` created as `node`.
