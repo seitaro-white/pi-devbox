@@ -21,9 +21,7 @@ function configuration() {
   const service = config.services["pi-box"];
   const paths = [
     "/workspace",
-    "/home/node/.pi/agent",
-    "/home/node/.config/git",
-    "/home/node/.herdr",
+    "/state",
   ];
   if (
     !service?.container_name ||
@@ -40,7 +38,7 @@ function configuration() {
     )
   ) {
     throw new Error(
-      "Expected exactly the four writable named volumes. Extra or bind mounts require manual handling.",
+      "Expected exactly the two writable named volumes. Extra or bind mounts require manual handling.",
     );
   }
   const volumes = service.volumes.map((mount) => ({
@@ -48,7 +46,7 @@ function configuration() {
     destination: mount.target,
   }));
   if (new Set(volumes.map((volume) => volume.name)).size !== paths.length) {
-    throw new Error("Workspace, agent, Git and Herdr volumes must be distinct.");
+    throw new Error("Workspace and state volumes must be distinct.");
   }
   return {
     project: config.name,
@@ -64,11 +62,11 @@ export function checkContainer() {
   const [metadata] = JSON.parse(docker(["image", "inspect", image]));
   if (
     !metadata.Config.Env?.includes(
-      "GIT_CONFIG_GLOBAL=/home/node/.config/git/config",
+      "GIT_CONFIG_GLOBAL=/state/git/config",
     )
   ) {
     throw new Error(
-      "Image does not support the Git volume. Run make build first.",
+      "Image does not support the state volume. Run make build first.",
     );
   }
 
@@ -154,7 +152,7 @@ export function checkContainer() {
     if (other) throw new Error(`Volume ${volume.name} is in use by ${other}.`);
   }
   console.log(
-    "Preflight passed. Files outside the four volumes may be lost on replacement; stop jobs and review work first.",
+    "Preflight passed. Files outside the two volumes may be lost on replacement; stop jobs and review work first.",
   );
 }
 

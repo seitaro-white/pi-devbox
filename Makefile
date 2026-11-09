@@ -1,4 +1,4 @@
-.PHONY: build check replace up versions
+.PHONY: build check migrate replace up versions
 
 # Compose reads file selection, image/storage overrides and credentials from .env.
 # No local configuration is required for the default Pi-only setup.
@@ -12,6 +12,10 @@ versions:
 
 check:
 	node scripts/check-container.mjs
+
+# One-off migration after make build; retains the old volumes for rollback.
+migrate:
+	bash scripts/migrate-state.sh
 
 # Preflight must precede every Compose command that could discard a container.
 replace: check
