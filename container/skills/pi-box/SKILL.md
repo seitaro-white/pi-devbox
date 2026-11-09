@@ -47,6 +47,11 @@ missing, ask the user to supply it privately in the shell launching Pi. Do not
 print credentials or request them in chat. Leave Git's credential helper unchanged.
 CLI config persists at `$GH_CONFIG_DIR` (`/state/git/gh`).
 
+## Claude Code subscription
+
+The official `pi-claude-code` extension uses the `claude` CLI. Log in with
+`claude auth login`; check readiness with `/claude-code-status`.
+
 ## Cloud tools
 
 Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform are image-owned in all
