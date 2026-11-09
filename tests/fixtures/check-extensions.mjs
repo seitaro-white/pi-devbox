@@ -30,12 +30,16 @@ test("exact package pins, extension loading and basic diagnostics", async (t) =>
   );
   assert.deepEqual(manifest.dependencies, expected);
 
-  // The image must not seed policy files before upstream extensions initialize.
+  // The image must not seed policy files before upstream extensions initialize,
+  // except pi-lsp.json, which adds typescript-language-server to the catalog.
+  assert.deepEqual(
+    readJson(`${homedir()}/.pi/agent/pi-lsp.json`),
+    readJson("/opt/pi/defaults/pi-lsp.json"),
+  );
   const agentDir = join(homedir(), ".pi", "agent");
   for (const file of [
     "extensions/subagent/config.json",
     "web-search.json",
-    "pi-lsp.json",
   ]) {
     assert.equal(existsSync(`${agentDir}/${file}`), false, file);
   }
@@ -156,7 +160,7 @@ test("exact package pins, extension loading and basic diagnostics", async (t) =>
       `personal skill ${name}`,
     );
   }
-  for (const command of ["ruff", "ty", "biome", "claude"]) {
+  for (const command of ["ruff", "ty", "biome", "typescript-language-server", "claude"]) {
     const result = spawnSync(command, ["--version"], { encoding: "utf8" });
     assert.equal(result.status, 0, result.stderr || result.error?.message);
   }
@@ -190,6 +194,9 @@ test("exact package pins, extension loading and basic diagnostics", async (t) =>
   const javascript = join(directory, "demo.mjs");
   writeFileSync(javascript, "let value = 1;\nconsole.log(value);\n");
   assert.match(await diagnostics("biome", javascript), /useConst/);
+  const typescript = join(directory, "demo.ts");
+  writeFileSync(typescript, 'const value: number = "text";\n');
+  assert.match(await diagnostics("typescript", typescript), /not assignable/);
   assert.deepEqual(errors, []);
   // LSP tools run only on synthetic files; no provider/model tools are invoked.
 });

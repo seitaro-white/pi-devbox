@@ -17,13 +17,17 @@
     "pi-stretchtext": "0.1.0",
     "pi-context-view": "0.8.3",
     "@earendil-works/pi-claude-code": "git+https://github.com/earendil-works/pi-claude-code.git#d5b5e04c314d3452d357174d16d10dda34daa2d2",
-    "pi-calm": "git+https://github.com/JesseZhang97/pi-calm.git#d4ae210f05e1d6b8157172c6769be73b8ea533f9"
+    "pi-calm": "git+https://github.com/JesseZhang97/pi-calm.git#d4ae210f05e1d6b8157172c6769be73b8ea533f9",
+    "typescript": "6.0.3",
+    "typescript-language-server": "6.0.3"
   },
   "piBox": {
     "personalSkills": true,
     "npmTools": [
       "@biomejs/biome",
-      "@anthropic-ai/claude-code"
+      "@anthropic-ai/claude-code",
+      "typescript",
+      "typescript-language-server"
     ]
   }
 }

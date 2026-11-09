@@ -71,7 +71,7 @@ The default image includes:
 - **TUI navigation tools:** micro (file editor), bat (`batcat` on Debian, file pager), [TTT](https://github.com/eugenioenko/ttt) (`ttt`, file explorer/editor). Used in combination these allow for a very basic terminal-based development experience, very handy if ssh'ing in from a client system that lacks an IDE.
 
 - **Python, uv, Ruff and [ty](https://docs.astral.sh/ty/)** — Ruff provides Python linting/fixes; ty provides type checking (`ty check`) and LSP diagnostics.
-- **Node.js, npm and Biome**
+- **Node.js, npm, Biome and [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server)** — Biome lints; the TypeScript server provides type diagnostics in Pi and navigation in TTT.
 - **[Claude Code CLI](https://code.claude.com/docs/)** (recommended and sandbox images) — run `claude` directly or `claude auth login` to authenticate for Claude Code and Pi's Claude Code subscription provider. In the recommended image, `CLAUDE_CONFIG_DIR` keeps Claude Code's login, settings and sessions in host-backed state (`/state/claude`), so they survive container replacement.
 - **PostgreSQL client (`psql`)**
 - **Google Cloud CLI (`gcloud`, `gsutil`, `bq`) and Terraform** — pinned, checksum-verified Linux amd64/arm64 releases in every image. Compose keeps gcloud configuration and credentials in host-backed state (`/state/gcloud`).
@@ -79,7 +79,7 @@ The default image includes:
 - **Pi Extensions**
     - **`pi-subagents`** — spin up and delegate to subagents for parallel agent workflows.
     - **`pi-web-access`** — simple web access/search - useful to have this as a capability separate from any given model provider.
-    - **`@narumitw/pi-lsp`** — Gives Pi access to the Ruff, ty & Biome toolchain - you can catch a surprising number of issues in AI-generated code with good old-fashioned linting before you even get to agent reviews.
+    - **`@narumitw/pi-lsp`** — Gives Pi access to the Ruff, ty, Biome & typescript-language-server toolchain - you can catch a surprising number of issues in AI-generated code with good old-fashioned linting before you even get to agent reviews.
     - **`@narumitw/pi-usage`** — Usage dashboard for subscription based coding plans.
     - **`@juicesharp/rpiv-ask-user-question`** — structured questions with selectable answers.
     - **`@juicesharp/rpiv-todo`** — task tracking for multi-step work.

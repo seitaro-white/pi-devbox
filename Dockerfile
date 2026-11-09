@@ -34,9 +34,12 @@ RUN --mount=type=cache,id=mise-${TARGETARCH},target=/var/cache/mise,sharing=lock
 FROM system AS cloud-tools
 COPY --from=tools /out/cloud/ /
 COPY --from=tools /out/editor/ /
+# Seeded into Pi's state by init-agent.mjs only when absent.
+COPY container/defaults/pi-lsp.json /opt/pi/defaults/pi-lsp.json
 # /opt/pi is copied last by each image; these links resolve once it arrives.
 RUN ln -s /opt/pi/node_modules/.bin/pi /usr/local/bin/pi \
     && ln -s /opt/pi/node_modules/.bin/biome /usr/local/bin/biome \
+    && ln -s /opt/pi/node_modules/.bin/typescript-language-server /usr/local/bin/typescript-language-server \
     && ln -s /opt/pi/node_modules/.bin/claude /usr/local/bin/claude
 # UTF-8 prevents tmux from replacing Unicode UI characters.
 ENV CLOUDSDK_CORE_DISABLE_USAGE_REPORTING=true \
@@ -89,6 +92,7 @@ ENV HOME=/home/agent \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt \
     NODE_USE_ENV_PROXY=1
 COPY --chown=agent:agent container/defaults/micro-settings.json /home/agent/.config/micro/settings.json
+COPY --chown=agent:agent container/defaults/ttt-settings.json /home/agent/.config/ttt/settings.json
 COPY --from=tools /out/python/ /
 COPY --from=npm-runtime /opt/pi /opt/pi
 COPY --from=personal-skills /opt/pi/node_modules/personal-skills /opt/pi/node_modules/personal-skills
@@ -114,6 +118,7 @@ ENV CLOUDSDK_CONFIG=/state/gcloud \
 
 COPY container/entrypoint.sh /usr/local/bin/pi-box-entrypoint
 COPY --chown=node:node container/defaults/micro-settings.json /home/node/.config/micro/settings.json
+COPY --chown=node:node container/defaults/ttt-settings.json /home/node/.config/ttt/settings.json
 COPY container/tmux.conf /etc/tmux.conf
 COPY container/gitconfig /etc/gitconfig
 COPY container/init-agent.mjs container/init-git.mjs container/prepare-runtime.mjs /opt/pi/

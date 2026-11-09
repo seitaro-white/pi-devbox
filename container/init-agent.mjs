@@ -2,6 +2,10 @@
 // or operator-owned extension configuration in fresh or existing volumes.
 import { randomUUID } from "node:crypto";
 import {
+  chmodSync,
+  constants,
+  copyFileSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   renameSync,
@@ -10,11 +14,13 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const dir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-const defaults = process.env.PI_BOX_DEFAULTS_DIR
-  ? join(process.env.PI_BOX_DEFAULTS_DIR, "settings.json")
-  : new URL("./defaults/settings.json", import.meta.url);
+const defaultsDir =
+  process.env.PI_BOX_DEFAULTS_DIR ||
+  fileURLToPath(new URL("./defaults", import.meta.url));
+const defaults = join(defaultsDir, "settings.json");
 
 /** Read JSON, leaving missing-file and malformed-file handling to the caller. */
 const read = (path) => JSON.parse(readFileSync(path, "utf8"));
@@ -110,5 +116,11 @@ if (JSON.stringify(settings) !== original) {
   writeAtomic(settingsPath, settings);
 }
 
-// Extension policy files are operator-owned. Fresh installs use upstream
-// defaults; existing persistent configuration is deliberately left untouched.
+// Extension policy files are operator-owned: seed pi-lsp.json only when absent
+// and leave existing persistent configuration untouched. Other extensions use
+// their upstream defaults on fresh installs.
+const lspDefaults = join(defaultsDir, "pi-lsp.json");
+if (existsSync(lspDefaults) && !existsSync(join(dir, "pi-lsp.json"))) {
+  copyFileSync(lspDefaults, join(dir, "pi-lsp.json"), constants.COPYFILE_EXCL);
+  chmodSync(join(dir, "pi-lsp.json"), 0o600);
+}
