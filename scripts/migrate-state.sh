@@ -9,15 +9,12 @@ settings=$(node -e '
   const s = c.services["pi-box"];
   const state = s.volumes.find(v => v.type === "volume" && v.target === "/state");
   if (!state || !s.container_name || !s.image) throw Error("Expected the new Compose state layout");
-  console.log([c.name, s.container_name, s.image, c.volumes[state.source].name].join("\n"));
+  console.log([c.name, s.container_name, s.image, c.volumes[state.source].name].join("\t"));
 ' "$config")
-mapfile -t settings <<< "$settings"
-project=${settings[0]}
-container=${settings[1]}
-image=${settings[2]}
-state=${settings[3]}
+IFS=$'\t' read -r project container image state <<< "$settings"
 
-if docker volume ls --format '{{.Name}}' | grep -Fxq -- "$state"; then
+volumes=$(docker volume ls --format '{{.Name}}')
+if grep -Fxq -- "$state" <<< "$volumes"; then
     echo "Target volume $state already exists; refusing migration." >&2
     exit 1
 fi
@@ -39,12 +36,9 @@ sources=$(node -e '
   const mounts = paths.map(p => c.Mounts.find(m => m.Destination === p && m.Type === "volume" && m.RW));
   if (c.Mounts.length !== 4 || mounts.some(m => !m) || new Set(mounts.map(m => m.Name)).size !== 4)
     throw Error("Expected exactly the old four writable named volumes");
-  console.log(mounts.slice(1).map(m => m.Name).join("\n"));
+  console.log(mounts.slice(1).map(m => m.Name).join("\t"));
 ' "$metadata" "$project")
-mapfile -t sources <<< "$sources"
-agent=${sources[0]}
-git=${sources[1]}
-herdr=${sources[2]}
+IFS=$'\t' read -r agent git herdr <<< "$sources"
 for volume in "$agent" "$git" "$herdr"; do
     users=$(docker ps --filter "volume=$volume" --format '{{.Names}}')
     if [[ "$users" != "$container" ]]; then
