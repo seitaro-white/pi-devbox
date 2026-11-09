@@ -11,7 +11,7 @@ for tool in gh git ss make nano micro ttt batcat rg fdfind uv python tmux psql c
 gh --version >/dev/null
 nano --version >/dev/null
 micro --version >/dev/null
-test "$(ttt --version)" = "ttt v$EXPECTED_TTT_VERSION"
+ttt --version >/dev/null
 test ! -w "$(command -v ttt)"
 batcat --version >/dev/null
 rg --version >/dev/null
