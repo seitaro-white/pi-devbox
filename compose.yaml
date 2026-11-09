@@ -17,6 +17,9 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+    environment:
+      # Optional: lets gh open PRs from inside the container (see docs/advanced.md).
+      GH_TOKEN: ${GH_TOKEN:-}
     volumes:
       # A host path binds a directory; the default is the named volume below.
       - ${WORKSPACE_DIR:-workspace}:/workspace

@@ -13,10 +13,11 @@ installs persist in `/state/uv`.
 
 Configure your Git identity inside the container and clone projects into `/workspace`. Git settings and HTTPS credentials persist in `/state/git`; host Git configuration and SSH keys are not mounted automatically.
 
-Use `gh` for GitHub PRs, issues and checks. Supply your existing GitHub token as
-`GH_TOKEN` in the shell launching Pi; check with `gh auth status`. Git push/pull
-keeps using its existing credential helper. CLI config persists in
-`/state/git/gh`; `GH_TOKEN` must be supplied for each new session.
+Use `gh` for GitHub PRs, issues and checks. Set `GH_TOKEN` (a GitHub personal
+access token) in `.env`; Compose passes it into the container on `make up`, so it
+is available in every session. Check with `gh auth status`. Run `gh auth setup-git`
+once so `git push` over HTTPS uses the same token. The container has no `ssh`
+client, so keep remotes on HTTPS. CLI config persists in `/state/git/gh`.
 
 ## Cloud tools
 
