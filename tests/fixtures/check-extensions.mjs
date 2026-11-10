@@ -154,7 +154,7 @@ test("exact package pins, extension loading and basic diagnostics", async (t) =>
     bundled.has("@earendil-works/pi-claude-code"),
     "/claude-code-status command",
   );
-  for (const name of ["create-plan", "review-changes", "clean-up"]) {
+  for (const name of ["plan", "review-changes", "clean-up"]) {
     assert(
       loader.getSkills().skills.some((skill) => skill.name === name),
       `personal skill ${name}`,
