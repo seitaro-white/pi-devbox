@@ -14,11 +14,9 @@ for (const role of ["orchestrator", "worker"]) {
     for (const arg of args) {
       assert.match(arg, /^[^\s'"#]+$/, `invalid argument: ${JSON.stringify(arg)}`);
     }
-    assert.equal(args[0], "--model");
-    assert.ok(args[1] && !args[1].startsWith("-"), "--model must have a value");
-    assert.equal(args[2], "--no-extensions");
-    assert.ok(args.length > 3, "profile must include extensions");
-    for (let index = 3; index < args.length; index += 2) {
+    assert.equal(args[0], "--no-extensions");
+    assert.ok(args.length > 1, "profile must include extensions");
+    for (let index = 1; index < args.length; index += 2) {
       assert.equal(args[index], "-e");
       const extension = args[index + 1];
       assert.ok(extension && !extension.startsWith("-"), "-e must have a value");
