@@ -1,5 +1,3 @@
---model
-anthropic/claude-opus-5-5:medium
 --no-extensions
 -e
 builtin:mcp
