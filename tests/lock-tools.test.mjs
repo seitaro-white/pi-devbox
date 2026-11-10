@@ -10,10 +10,10 @@ const script = join(root, "scripts/lock-tools.sh");
 const dockerfile = readFileSync(join(root, "Dockerfile"), "utf8");
 
 it("pins the lock refresh to the build's mise version", () => {
-  const version = readFileSync(script, "utf8").match(/^version=(.+)$/m)?.[1];
+  const scriptVersion = readFileSync(script, "utf8").match(/^mise_version=(.+)$/m)?.[1];
   const imageVersion = dockerfile.match(/--from=ghcr\.io\/jdx\/mise:([^@]+)@sha256:/)?.[1];
   assert.ok(imageVersion);
-  assert.equal(version, imageVersion);
+  assert.equal(scriptVersion, imageVersion);
 });
 
 it("copies mise only into the tools build stage", () => {
