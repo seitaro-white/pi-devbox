@@ -129,17 +129,20 @@ Bundled Pi and extension versions are pinned in [`container/package.json`](conta
 
 Ruff, ty, Herdr, Hunk, gcloud and Terraform are pinned in
 [`container/mise.toml`](container/mise.toml). After editing a version, run the
-following with the image's mise version and commit the updated manifest and
+following inside Pi-box (or on Linux x64/arm64) and commit the updated manifest and
 lockfile (Linux amd64/arm64 URLs and checksums):
 
 ```sh
-mise -C container trust
-mise -C container lock --platform linux-x64,linux-arm64
+make lock-tools
 ```
 
-Bundled tools run directly from `/usr/local/bin`; mise is only needed to install
-or update them. Tool, npm and personal-skill installs have separate build stages;
-the mise stage caches installed versions and downloads per architecture.
+The target runs `scripts/lock-tools.sh`, which downloads the build's pinned mise
+release, verifies its SHA-256 checksum, and removes the download and temporary
+state on exit. It needs no Docker socket or installed mise.
+
+Bundled tools run directly from `/usr/local/bin`; mise is only in the tools build
+stage, not the final images. Tool, npm and personal-skill installs have separate
+build stages; the tools stage caches installed versions and downloads per architecture.
 
 To change bundled packages, edit the manifest, regenerate the derived registrations with `container/prepare-runtime.mjs`, and refresh the npm lockfile. Commit those changes together, then rebuild and recreate the container (`make up`). Replacing the container ends running sessions, so finish active work first.
 

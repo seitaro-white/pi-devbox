@@ -1,4 +1,4 @@
-.PHONY: build replace up versions
+.PHONY: build replace up versions lock-tools
 
 # Compose reads file selection, image/storage overrides and credentials from .env.
 # No local configuration is required for the default Pi-only setup.
@@ -9,6 +9,9 @@ build:
 
 versions:
 	node scripts/check-versions.mjs
+
+lock-tools:
+	sh scripts/lock-tools.sh
 
 replace:
 	docker compose up -d --no-build --pull never --no-deps --force-recreate --wait --wait-timeout 60 pi-box

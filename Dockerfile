@@ -16,10 +16,9 @@ RUN UV_PYTHON_INSTALL_DIR=/opt/python UV_PYTHON_BIN_DIR=/usr/local/bin \
     uv python install 3.13.16 --default --no-cache
 ENV CLOUDSDK_PYTHON=/usr/local/bin/python3
 
-COPY --from=ghcr.io/jdx/mise:2026.10.25@sha256:91417f41840316b7c5da6854bef393eccea4546ae70f8baf0803e0e94287b68d /usr/local/bin/mise /usr/local/bin/mise
-
 # One locked install, like npm ci; export runtime artifacts by image profile.
 FROM system AS tools
+COPY --from=ghcr.io/jdx/mise:2026.10.25@sha256:91417f41840316b7c5da6854bef393eccea4546ae70f8baf0803e0e94287b68d /usr/local/bin/mise /usr/local/bin/mise
 ARG TARGETARCH
 WORKDIR /opt/tool-config
 ENV MISE_DATA_DIR=/var/cache/mise/data \

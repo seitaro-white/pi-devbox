@@ -20,7 +20,7 @@ in the image as `/AGENTS.md` and guides agents running *inside* Pi-box.
   After editing, run `node container/prepare-runtime.mjs` and refresh
   `container/package-lock.json`; commit all three together.
 - Standalone tools (Ruff, ty, Herdr, Hunk, gcloud, Terraform): `container/mise.toml`,
-  then `mise -C container lock --platform linux-x64,linux-arm64`.
+  then `make lock-tools` (Linux x64/arm64; downloads a temporary, checksum-verified mise).
 - `make versions` reports outdated npm pins without changing anything.
 
 ## Testing
