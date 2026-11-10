@@ -7,6 +7,10 @@ container/**
 !container/mise.toml
 !container/mise.lock
 !container/install-tools.sh
+!container/agent-profiles/
+container/agent-profiles/**
+!container/agent-profiles/orchestrator.args
+!container/agent-profiles/worker.args
 !container/package.json
 !container/package-lock.json
 !container/entrypoint.sh

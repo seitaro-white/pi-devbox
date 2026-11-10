@@ -124,6 +124,10 @@ acceptanceSuite(`image: ${image}`, {
     ]);
   });
 
+  step("agent launch profiles reference installed extensions", () => {
+    fixture("check-agent-profiles.mjs");
+  });
+
   step("npm installs work offline from the cache", () => {
     fixture("check-npm-cache.sh");
   });

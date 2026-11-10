@@ -36,6 +36,8 @@ COPY --from=tools /out/cloud/ /
 COPY --from=tools /out/editor/ /
 # Seeded into Pi's state by init-agent.mjs only when absent.
 COPY container/defaults/pi-lsp.json /opt/pi/defaults/pi-lsp.json
+COPY container/agent-profiles/ /opt/pi/agent-profiles/
+ENV PI_AGENT_PROFILES=/opt/pi/agent-profiles
 # /opt/pi is copied last by each image; these links resolve once it arrives.
 RUN ln -s /opt/pi/node_modules/.bin/pi /usr/local/bin/pi \
     && ln -s /opt/pi/node_modules/.bin/biome /usr/local/bin/biome \

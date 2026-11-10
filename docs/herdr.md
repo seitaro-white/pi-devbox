@@ -26,6 +26,23 @@ Inspector panes show subagent dashboards, not attached child terminals. Backgrou
 work is reported separately, so an idle parent pane can still have working children.
 Use separate worktrees for concurrent edits.
 
+## Agent launch profiles
+
+The bundled `hand-off` and `start-worker` skills read image-owned Pi arguments
+from `$PI_AGENT_PROFILES/orchestrator.args` and `worker.args`. Pi-box sets
+`PI_AGENT_PROFILES=/opt/pi/agent-profiles` in both Pi images. The profiles select
+`anthropic/claude-opus-5-5:medium` for the orchestrator and
+`openai-codex/gpt-6.1-sol:medium` for workers, disable automatic extension loading,
+and explicitly allow each role's extensions. Package entry paths load only
+extensions, not package prompt templates.
+
+To customize launches, point `PI_AGENT_PROFILES` at a directory with your own
+role files. Each file contains one literal Pi CLI argument per line, without
+quoting, blank lines or comments; the skills read it with `mapfile -t` and pass
+the arguments before `--append-system-prompt <role prompt>`. A missing variable
+or role file means no extra arguments. Role prompts and Herdr coordination stay
+in the skills, not the profiles.
+
 ## Storage and updates
 
 Herdr uses `/state/herdr` in the host state directory (`STATE_DIR` overrides
